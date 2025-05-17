@@ -1,0 +1,67 @@
+/* Estilos para elementos arrastáveis */
+.draggable-event {
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+}
+
+.draggable-event:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.draggable-event:active {
+  cursor: grabbing;
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0.8;
+}
+
+/* Estilos para o indicador de posição durante o arrasto */
+.drag-indicator {
+  position: absolute;
+  height: 2px;
+  background-color: #01aef0;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  box-shadow: 0 0 4px rgba(1, 174, 240, 0.5);
+}
+
+.drag-indicator::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #01aef0;
+  border-radius: 50%;
+  left: -4px;
+  top: -3px;
+}
+
+.drag-indicator::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #01aef0;
+  border-radius: 50%;
+  right: -4px;
+  top: -3px;
+}
+
+/* Animação para eventos sendo arrastados */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(1, 174, 240, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(1, 174, 240, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(1, 174, 240, 0);
+  }
+}
+
+.dragging {
+  animation: pulse 1.5s infinite;
+  z-index: 1000;
+}
