@@ -9,7 +9,7 @@ export type Idea = {
   id: string
   user_id: string
   title: string
-  description: string
+  idea_text: string
   status: string
   tags?: string[]
   created_at: string
@@ -40,12 +40,7 @@ export function useIdeas(userId: string | undefined) {
         // Get ideas from Supabase
         const { data, error } = await supabase
           .from("ideas")
-          .select(`
-            *,
-            tags:content_tags(
-              tag:tags(name)
-            )
-          `)
+          .select("*")
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
 
@@ -55,17 +50,9 @@ export function useIdeas(userId: string | undefined) {
 
         // Transform the data to match our expected format
         const formattedIdeas = data.map((idea) => {
-          // Extract tags from the nested structure
-          const tags = idea.tags
-            ? idea.tags
-                .filter((t) => t.tag) // Filter out any null tags
-                .map((t) => t.tag.name)
-            : []
-
-          // Return the formatted idea
           return {
             ...idea,
-            tags,
+            tags: idea.tags || [],
             // Convert dates to Date objects for easier handling
             created_at: idea.created_at,
             updated_at: idea.updated_at,
@@ -113,8 +100,10 @@ export function useIdeas(userId: string | undefined) {
                   }
                 })
               } else if (payload.eventType === "UPDATE") {
+                console.log("[Real-time UPDATE] Payload new ID:", payload.new.id);
                 // Fetch the complete idea with tags
                 fetchIdeaWithTags(payload.new.id).then((completeIdea) => {
+                  console.log("[Real-time UPDATE] Complete idea fetched for update:", completeIdea);
                   if (completeIdea) {
                     setIdeas((prev) => prev.map((idea) => (idea.id === completeIdea.id ? completeIdea : idea)))
                   }
@@ -149,12 +138,7 @@ export function useIdeas(userId: string | undefined) {
     try {
       const { data, error } = await supabase
         .from("ideas")
-        .select(`
-          *,
-          tags:content_tags(
-            tag:tags(name)
-          )
-        `)
+        .select("*")
         .eq("id", ideaId)
         .single()
 
@@ -162,13 +146,11 @@ export function useIdeas(userId: string | undefined) {
         throw error
       }
 
-      // Extract tags from the nested structure
-      const tags = data.tags ? data.tags.filter((t) => t.tag).map((t) => t.tag.name) : []
-
       // Return the formatted idea
       return {
         ...data,
-        tags,
+        idea_text: data.idea_text,
+        tags: data.tags || [],
         created_at: data.created_at,
         updated_at: data.updated_at,
         scheduled_date: data.scheduled_date,
@@ -185,33 +167,25 @@ export function useIdeas(userId: string | undefined) {
       return { success: false, error: new Error("User not authenticated or Supabase not initialized") }
 
     try {
-      // Generate a UUID for the new idea
       const ideaId = uuidv4()
+      const ideaToInsert = {
+        id: ideaId,
+        user_id: userId,
+        title: newIdea.title,
+        idea_text: newIdea.idea_text,
+        status: newIdea.status || "draft",
+        tags: newIdea.tags || [],
+        scheduled_date: newIdea.scheduled_date,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-      // Create the idea in the ideas table
-      const { error: ideaError } = await supabase.from("ideas").insert([
-        {
-          id: ideaId,
-          user_id: userId,
-          title: newIdea.title,
-          description: newIdea.description,
-          status: newIdea.status || "draft",
-          scheduled_date: newIdea.scheduled_date,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ])
+      const { error: ideaError } = await supabase.from("ideas").insert([ideaToInsert])
 
       if (ideaError) {
         throw ideaError
       }
 
-      // If there are tags, handle them
-      if (newIdea.tags && newIdea.tags.length > 0) {
-        await handleIdeaTags(ideaId, newIdea.tags)
-      }
-
-      // Fetch the complete idea with tags
       const completeIdea = await fetchIdeaWithTags(ideaId)
 
       toast({
@@ -240,15 +214,18 @@ export function useIdeas(userId: string | undefined) {
       return { success: false, error: new Error("User not authenticated or Supabase not initialized") }
 
     try {
-      // Update the idea in the ideas table
+      // Ensure that if idea_text is part of updates, it's correctly structured
+      const updatesToApply: { [key: string]: any } = { ...updates };
+      if ('idea_text' in updates) {
+        updatesToApply.idea_text = updates.idea_text;
+      }
+      updatesToApply.updated_at = new Date().toISOString();
+
       const { error: ideaError } = await supabase
         .from("ideas")
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updatesToApply)
         .eq("id", id)
-        .eq("user_id", userId) // Ensure user can only update their own ideas
+        .eq("user_id", userId)
 
       if (ideaError) {
         throw ideaError
@@ -320,62 +297,19 @@ export function useIdeas(userId: string | undefined) {
     if (!supabase) return
 
     try {
-      // First, remove all existing tags for this idea
-      const { error: deleteError } = await supabase.from("content_tags").delete().eq("content_id", ideaId)
+      // Update the idea directly with the tags array
+      const { error } = await supabase
+        .from("ideas")
+        .update({
+          tags: tags,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", ideaId)
+        .eq("user_id", userId)
 
-      if (deleteError) {
-        throw deleteError
+      if (error) {
+        throw error
       }
-
-      // If there are no new tags, we're done
-      if (tags.length === 0) return
-
-      // For each tag, check if it exists, and if not, create it
-      const tagPromises = tags.map(async (tagName) => {
-        // Check if tag exists
-        const { data: existingTags, error: fetchError } = await supabase
-          .from("tags")
-          .select("id")
-          .eq("name", tagName)
-          .limit(1)
-
-        if (fetchError) {
-          throw fetchError
-        }
-
-        let tagId
-
-        if (existingTags.length === 0) {
-          // Tag doesn't exist, create it
-          const { data: newTag, error: createError } = await supabase
-            .from("tags")
-            .insert([{ name: tagName }])
-            .select("id")
-            .single()
-
-          if (createError) {
-            throw createError
-          }
-
-          tagId = newTag.id
-        } else {
-          tagId = existingTags[0].id
-        }
-
-        // Create the content_tag relationship
-        const { error: linkError } = await supabase.from("content_tags").insert([
-          {
-            content_id: ideaId,
-            tag_id: tagId,
-          },
-        ])
-
-        if (linkError) {
-          throw linkError
-        }
-      })
-
-      await Promise.all(tagPromises)
     } catch (err) {
       console.error("Error handling idea tags:", err)
       throw err
@@ -384,6 +318,7 @@ export function useIdeas(userId: string | undefined) {
 
   // Schedule an idea
   const scheduleIdea = async (id: string, date: Date | null) => {
+    console.log("[scheduleIdea] Scheduling idea ID:", id, "to date:", date ? date.toISOString() : null);
     return updateIdea(id, {
       scheduled_date: date ? date.toISOString() : null,
       status: date ? "scheduled" : "draft",

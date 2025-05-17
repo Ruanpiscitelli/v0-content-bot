@@ -16,8 +16,8 @@ export function FeatureCard({ icon, title, description, className = "", aiHighli
       } ${className}`}
     >
       <div className={`mb-4 ${aiHighlight ? "text-primary" : ""}`}>{icon}</div>
-      <h3 className="font-bold text-lg mb-2 text-secondary">{title}</h3>
-      <p className="text-accent text-sm">{description}</p>
+      <h3 className="font-bold text-lg mb-2 text-foreground">{title}</h3>
+      <p className="text-foreground text-sm">{description}</p>
       {aiHighlight && (
         <div className="mt-4 text-xs font-medium text-primary/80 flex items-center">
           <span className="inline-block w-2 h-2 bg-primary rounded-full mr-2 animate-pulse"></span>

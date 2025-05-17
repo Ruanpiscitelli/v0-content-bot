@@ -1,17 +1,8 @@
 "use server"
 
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import type { Database } from "@/types/supabase"
-
-// Adicionar uma função auxiliar para criar o cliente do Supabase
-function getSupabaseServer() {
-  return createServerComponentClient<Database>({
-    cookies,
-    supabaseUrl: process.env.SUPABASE_URL,
-    supabaseKey: process.env.SUPABASE_ANON_KEY,
-  })
-}
 
 export type AuthEventType =
   | "sign_in"
@@ -40,7 +31,8 @@ export async function getUserAuthEvents(
   eventTypes?: AuthEventType[],
 ): Promise<{ events: AuthEvent[]; error: string | null }> {
   try {
-    const supabase = getSupabaseServer()
+    const cookieStore = cookies();
+    const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
     let query = supabase
       .from("auth_events")
@@ -75,7 +67,8 @@ export async function recordAuthEvent(
   ipAddress?: string,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    const supabase = getSupabaseServer()
+    const cookieStore = cookies();
+    const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
     // Se userId não foi fornecido, tente obter da sessão atual
     let userIdToUse = userId
@@ -88,13 +81,8 @@ export async function recordAuthEvent(
       userIdToUse = session?.user?.id
     }
 
-    if (!userIdToUse) {
-      console.warn("No user ID provided or found in session for auth event:", eventType)
-      return { success: false, error: "No user ID provided or found in session" }
-    }
-
     const { error } = await supabase.from("auth_events").insert({
-      user_id: userIdToUse,
+      user_id: userIdToUse || null,
       event_type: eventType,
       status,
       metadata,

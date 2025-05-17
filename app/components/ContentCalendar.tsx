@@ -38,7 +38,9 @@ export default function ContentCalendar({ events, onEventUpdate }: ContentCalend
 
   // Function to determine which days have events
   const getDaysWithEvents = () => {
-    return events.map((event) => new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate()))
+    const eventDates = events.map((event) => new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate()))
+    console.log("[ContentCalendar] getDaysWithEvents - Dates with events:", eventDates);
+    return eventDates;
   }
 
   // Function to render day content in the calendar
@@ -49,6 +51,7 @@ export default function ContentCalendar({ events, onEventUpdate }: ContentCalend
         event.start.getMonth() === day.getMonth() &&
         event.start.getFullYear() === day.getFullYear(),
     )
+    console.log("[ContentCalendar] renderDayContent - Day:", day, "Has Events:", hasEvents);
 
     if (hasEvents) {
       return <div className="w-1 h-1 bg-primary rounded-full mx-auto mt-1"></div>
@@ -109,12 +112,12 @@ export default function ContentCalendar({ events, onEventUpdate }: ContentCalend
       </div>
 
       <div className="md:col-span-2 bg-white p-4 rounded-lg shadow overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-semibold mb-4 text-foreground">
           {selectedDate ? format(selectedDate, "MMMM d, yyyy", { locale: enUS }) : "Select a date"}
         </h2>
 
         {eventsForSelectedDate.length === 0 ? (
-          <p className="text-gray-500">No content scheduled for this date.</p>
+          <p className="text-muted-foreground">No content scheduled for this date.</p>
         ) : (
           <div className="space-y-4">
             {eventsForSelectedDate.map((event) => (

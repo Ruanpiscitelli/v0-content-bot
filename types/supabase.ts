@@ -39,6 +39,8 @@ export interface Database {
           title: string
           description: string | null
           status: string | null
+          tags: string[] | null
+          scheduled_date: string | null
           created_at: string
           updated_at: string
         }
@@ -48,6 +50,8 @@ export interface Database {
           title: string
           description?: string | null
           status?: string | null
+          tags?: string[] | null
+          scheduled_date?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -57,6 +61,8 @@ export interface Database {
           title?: string
           description?: string | null
           status?: string | null
+          tags?: string[] | null
+          scheduled_date?: string | null
           created_at?: string
           updated_at?: string
         }

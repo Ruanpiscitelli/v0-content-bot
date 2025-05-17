@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from "uuid"
 import ChatHeader from "./chat-header"
 import ChatWindow from "./chat-window"
 import InputBar from "./input-bar"
-import { sendMessage, sendImage } from "@/lib/api-service"
+import { sendImage } from "@/lib/api-service"
+import { collectDeviceData } from "@/lib/device-data"
 import { trackEvent } from "@/lib/analytics"
 import type { Message } from "@/lib/types"
 import { Instagram, Facebook, Twitter, Linkedin, Youtube, FileText, Mail, MessageSquare, Settings } from "lucide-react"
@@ -54,24 +55,67 @@ export default function ChatInterface() {
     setMessages((prev) => [...prev, userMessage])
 
     // Track the event
-    trackEvent("message_sent", { content_type: contentType, content_style: contentStyle })
+    trackEvent("message_sent", { 
+      message_length: text.length 
+    })
 
     // Set loading state
     setIsLoading(true)
 
     try {
-      // Enhance the prompt with content preferences
-      const enhancedPrompt = `[Type: ${contentType}, Style: ${contentStyle}, Length: ${
-        contentLength === 1 ? "short" : contentLength === 2 ? "medium" : "long"
-      }${includeHashtags ? ", include hashtags" : ""}${includeEmojis ? ", include emojis" : ""}] ${text}`
+      // Collect device data
+      let deviceDataResult = {};
+      try {
+        const deviceDataPromise = collectDeviceData();
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Device data collection timeout")), 3000); // 3s timeout
+        });
+        deviceDataResult = await Promise.race([deviceDataPromise, timeoutPromise]);
+      } catch (error) {
+        console.warn("Device data collection failed or timed out:", error);
+        // Minimal fallback for deviceData
+        deviceDataResult = {
+          deviceData: {
+            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
+            timestamp: new Date().toISOString(),
+            error: `Collection failed: ${error instanceof Error ? error.message : String(error)}`,
+          },
+          fingerprint: { // fingerprint.js might provide this structure
+            visitorId: "fallback_id_client_timeout",
+          },
+        };
+      }
 
-      // Send the message to the API
-      const response = await sendMessage(enhancedPrompt)
+      // Prepare history for the API call
+      const historyToSend = messages.map(msg => ({
+        ...msg,
+        sender: msg.sender === "user" ? "user" : "bot" 
+      }));
+
+      // Send the message to the new API route
+      const response = await fetch("/api/chat/n8n", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: text,
+          history: historyToSend,
+          deviceData: deviceDataResult,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Error fetching response from server" }))
+        throw new Error(errorData.message || `API request failed with status ${response.status}`);
+      }
+
+      const responseData = await response.json();
 
       // Create a new message from the bot
       const botMessage: Message = {
         id: uuidv4(),
-        content: response.message,
+        content: responseData.message,
         sender: "bot",
         timestamp: new Date(),
       }
@@ -101,6 +145,22 @@ export default function ChatInterface() {
   const handleSendImage = async (file: File) => {
     if (isLoading) return
 
+    // Collect device data (também para envio de imagem, se relevante para o endpoint)
+    let deviceDataResult = {};
+    try {
+      const deviceDataPromise = collectDeviceData();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Device data collection timeout")), 3000);
+      });
+      deviceDataResult = await Promise.race([deviceDataPromise, timeoutPromise]);
+    } catch (error) {
+      console.warn("Device data collection for image failed or timed out:", error);
+      deviceDataResult = { // Fallback
+        deviceData: { userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A', timestamp: new Date().toISOString(), error: "Collection failed" },
+        fingerprint: { visitorId: "fallback_id_client_timeout_img" },
+      };
+    }
+
     // Create a temporary URL for the image
     const imageUrl = URL.createObjectURL(file)
 
@@ -123,8 +183,28 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
-      // Send the image to the API
-      const response = await sendImage(file)
+      // Send the image to the API - Se este endpoint também for para n8n e precisar de deviceData,
+      // a função sendImage em api-service.ts precisaria ser ajustada ou uma nova rota criada.
+      // Por agora, sendImage continua como estava, mas adicionamos a coleta de deviceData acima
+      // caso você decida integrá-lo.
+      const response = await sendImage(file) // Esta chamada não envia deviceData por padrão
+
+      // Se você quiser que sendImage também envie deviceData no novo formato para um endpoint n8n:
+      // const formData = new FormData();
+      // formData.append("image", file);
+      // const n8nImagePayload = [{
+      //   image_name: file.name, // ou outros metadados da imagem
+      //   deviceData: deviceDataResult,
+      //   // history: historyToSend, // se relevante
+      // }];
+      // formData.append("payload", JSON.stringify(n8nImagePayload));
+      // const response = await fetch("/api/chat/n8n/image", { // Exemplo de nova rota
+      //   method: "POST",
+      //   body: formData,
+      // });
+      // const responseData = await response.json();
+      // content: responseData.message,
+
 
       // Create a new message from the bot
       const botMessage: Message = {

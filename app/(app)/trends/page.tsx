@@ -15,17 +15,17 @@ export default async function TrendsPage() {
 
     // Get the current user
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // If no session, redirect to login
-    if (!session) {
+    // If no user, redirect to login
+    if (!user) {
       redirect("/login")
     }
 
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Trends & Insights</h1>
+        <h1 className="text-2xl font-bold mb-6 text-foreground">Trends & Insights</h1>
         <div className="bg-white p-6 rounded-lg shadow-md">
           <p className="text-gray-500">Trends and insights feature coming soon!</p>
         </div>

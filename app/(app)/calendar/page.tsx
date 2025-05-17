@@ -10,15 +10,15 @@ export default async function CalendarPage() {
 
     // Get the current user
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // If no session, redirect to login
-    if (!session) {
+    // If no user, redirect to login
+    if (!user) {
       redirect("/login")
     }
 
-    return <CalendarClientPage userId={session.user.id} />
+    return <CalendarClientPage userId={user.id} />
   } catch (error) {
     console.error("Error in CalendarPage:", error)
     // In case of error, redirect to login

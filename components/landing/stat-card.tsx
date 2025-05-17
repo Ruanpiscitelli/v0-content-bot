@@ -14,8 +14,8 @@ export function StatCard({ value, label, description, icon, isAI = false }: Stat
     >
       {icon && <div className="flex justify-center mb-3">{icon}</div>}
       <div className={`text-3xl font-bold ${isAI ? "text-primary" : "text-blue-600"}`}>{value}</div>
-      <div className="text-sm text-gray-600 font-medium">{label}</div>
-      {description && <div className="mt-2 text-xs text-gray-500">{description}</div>}
+      <div className="text-sm font-medium text-foreground">{label}</div>
+      {description && <div className="mt-2 text-xs text-foreground">{description}</div>}
       {isAI && (
         <div className="mt-3 text-xs text-primary/70 flex items-center justify-center">
           <span className="inline-block w-1.5 h-1.5 bg-primary rounded-full mr-1.5 animate-pulse"></span>

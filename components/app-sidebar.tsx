@@ -321,12 +321,6 @@ export default function AppSidebar() {
       active: pathname === "/trends",
     },
     {
-      name: "Security",
-      href: "/security",
-      icon: <Shield className="w-5 h-5" />,
-      active: pathname === "/security",
-    },
-    {
       name: "Settings",
       href: "/settings",
       icon: <Settings className="w-5 h-5" />,

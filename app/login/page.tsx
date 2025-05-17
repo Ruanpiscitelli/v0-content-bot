@@ -21,12 +21,24 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false)
 
   useEffect(() => {
-    // Check if user just registered
-    const registered = searchParams.get("registered")
-    if (registered === "true") {
-      setSuccessMessage("Registration successful! Please sign in with your credentials.")
+    const messageParam = searchParams.get('message');
+    const errorParam = searchParams.get('error');
+    const typeParam = searchParams.get('type') as 'success' | 'error' | null;
+    const registeredParam = searchParams.get("registered");
+
+    // Clear previous messages
+    setSuccessMessage(null);
+    setError(null);
+
+    if (typeParam === 'success' && messageParam) {
+      setSuccessMessage(messageParam);
+    } else if (typeParam === 'error' && errorParam) {
+      setError(errorParam);
+    } else if (registeredParam === "true") {
+      // Only show registration success if no other message (e.g. email confirmation) is present
+      setSuccessMessage("Registration successful! Please sign in with your credentials.");
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

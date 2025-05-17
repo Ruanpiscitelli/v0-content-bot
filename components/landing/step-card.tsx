@@ -20,11 +20,11 @@ export function StepCard({ number, title, description, icon, isActive = false }:
           {number}
         </div>
         <div className="flex-1">
-          <h3 className="text-xl font-bold mb-2 text-secondary flex items-center">
+          <h3 className="text-xl font-bold mb-2 flex items-center">
             {title}
             {icon && <span className="ml-2 text-primary">{icon}</span>}
           </h3>
-          <p className="text-accent">{description}</p>
+          <p className="text-foreground">{description}</p>
 
           {isActive && (
             <div className="mt-4 flex items-center text-sm text-primary">

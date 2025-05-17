@@ -4,12 +4,13 @@ import type React from "react"
 
 import { useState } from "react"
 import { Plus, X } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { RichTextEditor } from "./rich-text-editor"
 import type { NewIdea } from "@/hooks/useIdeas"
 
 interface IdeaCreateModalProps {
@@ -21,21 +22,21 @@ interface IdeaCreateModalProps {
 
 export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: IdeaCreateModalProps) {
   const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
+  const [ideaText, setIdeaText] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
-  const [errors, setErrors] = useState<{ title?: string; description?: string }>({})
+  const [errors, setErrors] = useState<{ title?: string; idea_text?: string }>({})
+  const [activeTab, setActiveTab] = useState<"write" | "preview">("write")
 
   const handleSubmit = () => {
-    // Validation
-    const newErrors: { title?: string; description?: string } = {}
+    const newErrors: { title?: string; idea_text?: string } = {}
 
     if (!title.trim()) {
       newErrors.title = "Title is required"
     }
 
-    if (!description.trim()) {
-      newErrors.description = "Description is required"
+    if (!ideaText.trim()) {
+      newErrors.idea_text = "Description is required"
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -43,23 +44,22 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
       return
     }
 
-    // Save idea
     onSave({
       title: title.trim(),
-      description: description.trim(),
+      idea_text: ideaText.trim(),
       tags: tags.length > 0 ? tags : undefined,
     })
 
-    // Clear form
     resetForm()
   }
 
   const resetForm = () => {
     setTitle("")
-    setDescription("")
+    setIdeaText("")
     setTags([])
     setNewTag("")
     setErrors({})
+    setActiveTab("write")
   }
 
   const handleClose = () => {
@@ -87,9 +87,18 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent 
+        className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto bg-background"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          document.body.style.pointerEvents = '';
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>New Idea</DialogTitle>
+          <DialogTitle className="text-black">New Idea</DialogTitle>
+          <DialogDescription>
+            Create a new content idea to add to your ideas board.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
@@ -110,20 +119,38 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description" className={errors.description ? "text-red-500" : ""}>
+            <Label htmlFor="description" className={errors.idea_text ? "text-red-500" : ""}>
               Description
             </Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value)
-                if (errors.description) setErrors({ ...errors, description: undefined })
-              }}
-              rows={4}
-              className={errors.description ? "border-red-500 focus-visible:ring-red-500" : ""}
-            />
-            {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+            
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "write" | "preview")}>
+              <TabsList className="mb-2">
+                <TabsTrigger value="write">Write</TabsTrigger>
+                <TabsTrigger value="preview">Preview</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="write">
+                <RichTextEditor 
+                  content={ideaText}
+                  onChange={(newContent) => {
+                    setIdeaText(newContent)
+                    if (errors.idea_text) setErrors({ ...errors, idea_text: undefined })
+                  }}
+                />
+              </TabsContent>
+              
+              <TabsContent value="preview">
+                <div className="min-h-[200px] p-3 border rounded-md bg-muted/10">
+                  {ideaText ? (
+                    <div dangerouslySetInnerHTML={{ __html: ideaText }} className="prose prose-sm max-w-none" />
+                  ) : (
+                    <p className="text-muted-foreground">No content to preview</p>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            {errors.idea_text && <p className="text-sm text-red-500">{errors.idea_text}</p>}
           </div>
 
           <div className="grid gap-2">

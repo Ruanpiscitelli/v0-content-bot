@@ -44,19 +44,31 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [currentIdea, setCurrentIdea] = useState<Idea | null>(null)
 
+  console.log("Ideas received by IdeasPageClient from useIdeas hook:", ideas);
+  console.log("Is loading:", loading);
+  console.log("Error state:", error);
+
   // Filter ideas based on search and selected tags
   const filteredIdeas = ideas.filter((idea) => {
-    // Filter by search term
+    console.log("Filtering idea:", JSON.stringify(idea)); // Log a ideia inteira
+    console.log("SearchTerm:", searchTerm, "SelectedTags:", selectedTags);
+
     const matchesSearch =
       searchTerm === "" ||
-      idea.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      idea.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (idea.title && typeof idea.title === 'string' && idea.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (idea.idea_text && typeof idea.idea_text === 'string' && idea.idea_text.toLowerCase().includes(searchTerm.toLowerCase()));
+    console.log("matchesSearch:", matchesSearch);
 
-    // Filter by selected tags
-    const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => idea.tags?.includes(tag))
+    const matchesTags = 
+      selectedTags.length === 0 || 
+      (Array.isArray(idea.tags) && selectedTags.some((tag) => idea.tags?.includes(tag)));
+    console.log("matchesTags:", matchesTags);
 
+    console.log("Returning for this idea:", matchesSearch && matchesTags);
     return matchesSearch && matchesTags
   })
+
+  console.log("Filtered ideas before passing to list/grid:", filteredIdeas);
 
   // Handlers for CRUD operations
   const handleCreateIdea = async (newIdea: Omit<NewIdea, "status">) => {
@@ -116,7 +128,7 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
   return (
     <div className="p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-3 md:gap-4">
-        <h1 className="text-xl md:text-2xl font-bold">Ideas Board</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">Ideas Board</h1>
 
         <Button
           onClick={() => setIsCreateModalOpen(true)}
@@ -205,11 +217,11 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           ) : filteredIdeas.length === 0 ? (
             // Empty state
             <div className="text-center py-8 md:py-12">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-                <Filter className="w-6 h-6 md:w-8 md:h-8 text-gray-400" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Filter className="w-6 h-6 md:w-8 md:h-8 text-gray-400 dark:text-gray-500" />
               </div>
-              <h3 className="text-base md:text-lg font-medium text-gray-900 mb-1">No ideas found</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="text-base md:text-lg font-medium text-foreground mb-1">No ideas found</h3>
+              <p className="text-sm text-muted-foreground">
                 {searchTerm || selectedTags.length > 0
                   ? "Try adjusting your search filters"
                   : "Start by creating your first idea"}
@@ -238,7 +250,10 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
       {/* Modals */}
       <IdeaCreateModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          console.log("Closing Create Modal");
+          setIsCreateModalOpen(false)
+        }}
         onSave={handleCreateIdea}
         availableTags={availableTags}
       />
@@ -248,8 +263,10 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           <IdeaEditModal
             isOpen={isEditModalOpen}
             onClose={() => {
+              console.log("Closing Edit Modal, currentIdea before reset:", currentIdea);
               setIsEditModalOpen(false)
               setCurrentIdea(null)
+              console.log("Edit Modal closed, currentIdea after reset:", null);
             }}
             onSave={handleEditIdea}
             idea={currentIdea}
@@ -259,8 +276,10 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           <IdeaScheduleModal
             isOpen={isScheduleModalOpen}
             onClose={() => {
+              console.log("Closing Schedule Modal, currentIdea before reset:", currentIdea);
               setIsScheduleModalOpen(false)
               setCurrentIdea(null)
+              console.log("Schedule Modal closed, currentIdea after reset:", null);
             }}
             onSchedule={(date) => handleScheduleIdea(currentIdea.id, date)}
             idea={currentIdea}
@@ -269,8 +288,10 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           <IdeaDeleteDialog
             isOpen={isDeleteDialogOpen}
             onClose={() => {
+              console.log("Closing Delete Dialog, currentIdea before reset:", currentIdea);
               setIsDeleteDialogOpen(false)
               setCurrentIdea(null)
+              console.log("Delete Dialog closed, currentIdea after reset:", null);
             }}
             onDelete={() => handleDeleteIdea(currentIdea.id)}
             idea={currentIdea}

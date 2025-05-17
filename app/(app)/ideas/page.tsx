@@ -10,15 +10,15 @@ export default async function IdeasPage() {
 
     // Get the current user
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // If no session, redirect to login
-    if (!session) {
+    // If no user, redirect to login
+    if (!user) {
       redirect("/login")
     }
 
-    return <IdeasPageClient userId={session.user.id} />
+    return <IdeasPageClient userId={user.id} />
   } catch (error) {
     console.error("Error in IdeasPage:", error)
     // In case of error, redirect to login

@@ -30,7 +30,13 @@ export function IdeaScheduleModal({ isOpen, onClose, onSchedule, idea }: IdeaSch
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent 
+        className="sm:max-w-md bg-background"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          document.body.style.pointerEvents = '';
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Schedule Idea</DialogTitle>
         </DialogHeader>

@@ -57,7 +57,7 @@ export default function SettingsClientPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Settings</h1>
+      <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-foreground">Settings</h1>
 
       <Tabs defaultValue="account" className="space-y-4 md:space-y-6">
         <TabsList className="grid grid-cols-3 w-full max-w-md">

@@ -62,10 +62,10 @@ export function LandingPage() {
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground">
                   Create <span className="text-primary">Engaging Content</span> with AI in Seconds
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mt-3 sm:mt-4">
+                <p className="text-base sm:text-lg md:text-xl text-foreground max-w-xl mx-auto lg:mx-0 mt-3 sm:mt-4">
                   Virallyzer uses advanced AI to generate high-converting content for all your social media channels,
                   saving you time and boosting engagement.
                 </p>
@@ -88,7 +88,7 @@ export function LandingPage() {
                 </Link>
               </div>
 
-              <div className="pt-3 sm:pt-4 text-xs sm:text-sm text-gray-500 flex items-center justify-center lg:justify-start">
+              <div className="pt-3 sm:pt-4 text-xs sm:text-sm text-foreground flex items-center justify-center lg:justify-start">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 <span>Generate content in less than 60 seconds</span>
               </div>
@@ -100,30 +100,30 @@ export function LandingPage() {
           </div>
 
           <div className="mt-12 sm:mt-16 md:mt-24">
-            <div className="text-center text-gray-500 text-xs sm:text-sm uppercase font-medium mb-4 sm:mb-6">
+            <div className="text-center text-foreground text-xs sm:text-sm uppercase font-medium mb-4 sm:mb-6">
               Create content for all platforms
             </div>
 
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-12">
               <div className="flex flex-col items-center">
-                <Instagram className="w-6 h-6 sm:w-8 sm:h-8 text-gray-700" />
-                <span className="mt-1 sm:mt-2 text-xs sm:text-sm">Instagram</span>
+                <Instagram className="w-6 h-6 sm:w-8 sm:h-8 text-foreground" />
+                <span className="mt-1 sm:mt-2 text-xs sm:text-sm text-foreground">Instagram</span>
               </div>
               <div className="flex flex-col items-center">
-                <Facebook className="w-6 h-6 sm:w-8 sm:h-8 text-gray-700" />
-                <span className="mt-1 sm:mt-2 text-xs sm:text-sm">Facebook</span>
+                <Facebook className="w-6 h-6 sm:w-8 sm:h-8 text-foreground" />
+                <span className="mt-1 sm:mt-2 text-xs sm:text-sm text-foreground">Facebook</span>
               </div>
               <div className="flex flex-col items-center">
-                <Twitter className="w-6 h-6 sm:w-8 sm:h-8 text-gray-700" />
-                <span className="mt-1 sm:mt-2 text-xs sm:text-sm">Twitter</span>
+                <Twitter className="w-6 h-6 sm:w-8 sm:h-8 text-foreground" />
+                <span className="mt-1 sm:mt-2 text-xs sm:text-sm text-foreground">Twitter</span>
               </div>
               <div className="flex flex-col items-center">
-                <Linkedin className="w-6 h-6 sm:w-8 sm:h-8 text-gray-700" />
-                <span className="mt-1 sm:mt-2 text-xs sm:text-sm">LinkedIn</span>
+                <Linkedin className="w-6 h-6 sm:w-8 sm:h-8 text-foreground" />
+                <span className="mt-1 sm:mt-2 text-xs sm:text-sm text-foreground">LinkedIn</span>
               </div>
               <div className="flex flex-col items-center">
-                <Youtube className="w-6 h-6 sm:w-8 sm:h-8 text-gray-700" />
-                <span className="mt-1 sm:mt-2 text-xs sm:text-sm">YouTube</span>
+                <Youtube className="w-6 h-6 sm:w-8 sm:h-8 text-foreground" />
+                <span className="mt-1 sm:mt-2 text-xs sm:text-sm text-foreground">YouTube</span>
               </div>
             </div>
           </div>
@@ -137,6 +137,9 @@ export function LandingPage() {
             title="Create content that engages your audience"
             subtitle="Powerful features for content creators"
             description="Virallyzer combines advanced artificial intelligence with proven marketing strategies to generate content that truly connects with your audience."
+            titleClassName="text-foreground"
+            subtitleClassName="text-foreground"
+            descriptionClassName="text-foreground"
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12">
@@ -186,6 +189,9 @@ export function LandingPage() {
             title="How it works"
             subtitle="Simple and efficient"
             description="In just three steps, transform your ideas into publication-ready content."
+            titleClassName="text-foreground"
+            subtitleClassName="text-foreground"
+            descriptionClassName="text-foreground"
           />
 
           <div className="mt-8 sm:mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
@@ -239,8 +245,8 @@ export function LandingPage() {
 
             <div className="w-full lg:w-1/2 space-y-6 sm:space-y-8">
               <div>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Real results for content creators</h2>
-                <p className="text-base sm:text-lg text-gray-600 mt-3 sm:mt-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Real results for content creators</h2>
+                <p className="text-base sm:text-lg text-foreground mt-3 sm:mt-4">
                   Our users are transforming their content production and achieving impressive results.
                 </p>
               </div>
@@ -294,9 +300,12 @@ export function LandingPage() {
       <Section id="pricing" className="py-12 sm:py-16 md:py-24" background="white">
         <Container>
           <SectionHeader
-            title="Plans for all creators"
+            title="Choose the plan that's right for you"
             subtitle="Simple and transparent pricing"
-            description="Choose the ideal plan for your content creation needs."
+            description="Start creating viral content today. No hidden fees, cancel anytime."
+            titleClassName="text-foreground"
+            subtitleClassName="text-foreground"
+            descriptionClassName="text-foreground"
           />
 
           <div className="mt-6 sm:mt-8 mb-8 sm:mb-12">
@@ -306,7 +315,7 @@ export function LandingPage() {
           <PlanComparisonTable />
 
           <div className="mt-8 sm:mt-12 text-center">
-            <p className="text-gray-600 mb-4 sm:mb-6">Questions about which plan to choose? Contact us.</p>
+            <p className="text-foreground mb-4 sm:mb-6">Questions about which plan to choose? Contact us.</p>
             <Link href="/chat">
               <CustomButton variant="outline" size="lg" animationType="scale">
                 Contact Us
@@ -317,17 +326,29 @@ export function LandingPage() {
       </Section>
 
       {/* FAQ Section */}
-      <FAQ />
+      <Section id="faq" className="py-12 sm:py-16 md:py-24" background="light">
+        <Container>
+          <SectionHeader
+            title="Frequently Asked Questions"
+            subtitle="We're here to help"
+            description="Find answers to common questions about Virallyzer."
+            titleClassName="text-foreground"
+            subtitleClassName="text-foreground"
+            descriptionClassName="text-foreground"
+          />
+          <FAQ />
+        </Container>
+      </Section>
 
       {/* CTA Section */}
       <Section className="py-12 sm:py-16 md:py-24" background="primary">
         <Container>
           <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-white">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-primary-foreground">
               Ready to revolutionize your content creation?
             </h2>
 
-            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-white/90">
+            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-primary-foreground/90">
               Join thousands of creators who are saving time and creating better content with Virallyzer.
             </p>
 
@@ -354,7 +375,7 @@ export function LandingPage() {
               </Link>
             </div>
 
-            <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-white/80">
+            <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/80">
               No credit card required. Start with the free plan today.
             </p>
           </div>
@@ -518,45 +539,45 @@ export function LandingPage() {
                 </div>
                 <h1 className="text-xl sm:text-2xl font-extrabold text-white">Virallyzer</h1>
               </div>
-              <p className="text-xs sm:text-sm text-gray-400">
+              <p className="text-xs sm:text-sm text-gray-300">
                 Your AI-powered content creation assistant for all social media platforms.
               </p>
               <div className="flex space-x-3 sm:space-x-4 mt-3 sm:mt-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-300 hover:text-white transition-colors">
                   <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-300 hover:text-white transition-colors">
                   <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-300 hover:text-white transition-colors">
                   <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-300 hover:text-white transition-colors">
                   <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
               </div>
             </div>
 
             <div>
-              <h3 className="font-medium text-base sm:text-lg mb-2 sm:mb-4">Product</h3>
+              <h3 className="font-medium text-base sm:text-lg mb-2 sm:mb-4 text-white">Product</h3>
               <ul className="space-y-1 sm:space-y-2">
                 <li>
-                  <a href="#features" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#features" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Features
                   </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#pricing" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Pricing
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Integrations
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Updates
                   </a>
                 </li>
@@ -564,25 +585,25 @@ export function LandingPage() {
             </div>
 
             <div>
-              <h3 className="font-medium text-base sm:text-lg mb-2 sm:mb-4">Support</h3>
+              <h3 className="font-medium text-base sm:text-lg mb-2 sm:mb-4 text-white">Support</h3>
               <ul className="space-y-1 sm:space-y-2">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Help Center
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Tutorials
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Contact
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Status
                   </a>
                 </li>
@@ -590,30 +611,30 @@ export function LandingPage() {
             </div>
 
             <div>
-              <h3 className="font-medium text-base sm:text-lg mb-2 sm:mb-4">Company</h3>
+              <h3 className="font-medium text-base sm:text-lg mb-2 sm:mb-4 text-white">Company</h3>
               <ul className="space-y-1 sm:space-y-2">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     About
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Blog
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Careers
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Terms of Use
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm">
                     Privacy
                   </a>
                 </li>
@@ -621,7 +642,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-8 sm:mt-12 pt-6 sm:pt-8 text-center text-gray-400 text-xs sm:text-sm">
+          <div className="border-t border-gray-700 mt-8 sm:mt-12 pt-6 sm:pt-8 text-center text-gray-300 text-xs sm:text-sm">
             <p>&copy; {new Date().getFullYear()} Virallyzer. All rights reserved.</p>
           </div>
         </Container>
