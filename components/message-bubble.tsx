@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { Message } from "@/lib/types"
 import { useState } from "react"
-import { toast } from "@/components/ui/use-toast"
+// import { toast } from "@/components/ui/use-toast"
 import {
   BookmarkPlus,
   BookmarkCheck,
@@ -21,70 +21,76 @@ import {
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { useIdeas, type NewIdea } from "@/hooks/useIdeas"
 
 interface MessageBubbleProps {
   message: Message
+  userId: string
 }
 
-export default function MessageBubble({ message }: MessageBubbleProps) {
+export default function MessageBubble({ message, userId }: MessageBubbleProps) {
   const isUser = message.sender === "user"
   const formattedTime = formatDistanceToNow(new Date(message.timestamp), {
     addSuffix: true,
     locale: ptBR,
   })
 
+  const { createIdea } = useIdeas(userId)
+
   const [isCopied, setIsCopied] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isSuccessfullySaved, setIsSuccessfullySaved] = useState(false)
   const [feedback, setFeedback] = useState<"none" | "like" | "dislike">("none")
 
   // Function to copy message text
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content || "")
     setIsCopied(true)
-    toast({
-      title: "Copied!",
-      description: "Text copied to clipboard",
-    })
+    // toast({
+    //   title: "Copied!",
+    //   description: "Text copied to clipboard",
+    // })
     setTimeout(() => setIsCopied(false), 2000)
   }
 
   // Function to save message as an idea
-  const handleSaveToIdeas = () => {
-    // Get existing ideas from localStorage or initialize an empty array
-    const savedIdeas = JSON.parse(localStorage.getItem("savedIdeas") || "[]")
+  const handleSaveToIdeas = async () => {
+    if (isSaving || isSuccessfullySaved) return
 
-    // Create a new idea based on the message
-    const newIdea = {
-      id: Date.now(),
-      title: message.content?.substring(0, 50) + (message.content && message.content.length > 50 ? "..." : ""),
-      description: message.content,
-      tags: ["chat"],
-      createdAt: new Date().toISOString(),
-      source: "chat",
-      messageId: message.id,
+    setIsSaving(true)
+
+    const newIdeaData: NewIdea = {
+      title: message.content?.substring(0, 70) + (message.content && message.content.length > 70 ? "..." : ""),
+      idea_text: message.content || "",
+      tags: ["chat", "chatbot-suggestion"],
+      status: "draft",
     }
 
-    // Add the new idea to the array
-    savedIdeas.push(newIdea)
+    const result = await createIdea(newIdeaData)
 
-    // Save the updated array to localStorage
-    localStorage.setItem("savedIdeas", JSON.stringify(savedIdeas))
-
-    setIsSaved(true)
-    toast({
-      title: "Saved!",
-      description: "Message saved to your ideas",
-    })
-    setTimeout(() => setIsSaved(false), 2000)
+    if (result.success) {
+      setIsSuccessfullySaved(true)
+      // toast({
+      //   title: "Salvo no Ideas Bank!",
+      //   description: "Sua nova ideia foi registrada com sucesso.",
+      // })
+    } else {
+      // toast({
+      //   title: "Erro ao Salvar",
+      //   description: result.error?.message || "Não foi possível salvar a ideia. Tente novamente.",
+      //   variant: "destructive",
+      // })
+    }
+    setIsSaving(false)
   }
 
   // Function to handle feedback
   const handleFeedback = (type: "like" | "dislike") => {
     setFeedback(type)
-    toast({
-      title: type === "like" ? "Thanks for the positive feedback!" : "Thanks for your feedback!",
-      description: type === "like" ? "We're glad you liked the content." : "We'll work to improve our results.",
-    })
+    // toast({
+    //   title: type === "like" ? "Thanks for the positive feedback!" : "Thanks for your feedback!",
+    //   description: type === "like" ? "We're glad you liked the content." : "We'll work to improve our results.",
+    // })
   }
 
   // Function to download content as text file
@@ -97,10 +103,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
     element.click()
     document.body.removeChild(element)
 
-    toast({
-      title: "Download started!",
-      description: "Your content has been downloaded as a text file.",
-    })
+    // toast({
+    //   title: "Download started!",
+    //   description: "Your content has been downloaded as a text file.",
+    // })
   }
 
   // Function to share content (would be expanded in a real implementation)
@@ -113,10 +119,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         })
         .catch((error) => console.log("Erro ao compartilhar", error))
     } else {
-      toast({
-        title: "Sharing not supported",
-        description: "Your browser doesn't support the Share API.",
-      })
+      // toast({
+      //   title: "Sharing not supported",
+      //   description: "Your browser doesn\'t support the Share API.",
+      // })
     }
   }
 
@@ -240,10 +246,17 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 rounded-full text-gray-400 hover:text-gray-600"
+              className="h-8 w-8 rounded-full text-gray-400 hover:text-gray-600 disabled:opacity-50"
               onClick={handleSaveToIdeas}
+              disabled={isSaving || isSuccessfullySaved}
             >
-              {isSaved ? <BookmarkCheck className="h-4 w-4 text-blue-600" /> : <BookmarkPlus className="h-4 w-4" />}
+              {isSuccessfullySaved ? (
+                <BookmarkCheck className="h-4 w-4 text-blue-600" />
+              ) : isSaving ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
+              ) : (
+                <BookmarkPlus className="h-4 w-4" />
+              )}
               <span className="sr-only">Save</span>
             </Button>
 

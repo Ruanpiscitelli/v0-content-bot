@@ -8,7 +8,10 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Virallyzer",
   description: "Sua assistente Expert em Conteúdo para criação de conteúdo viral e engajamento nas redes sociais",
-    generator: 'v0.dev'
+    generator: 'v0.dev',
+    icons: {
+      icon: '/images/favicon.png',
+    },
 }
 
 export default function RootLayout({

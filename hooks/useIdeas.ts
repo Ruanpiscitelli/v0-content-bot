@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getSupabase } from "@/lib/supabase"
-import { useToast } from "@/components/ui/use-toast"
+// import { useToast } from "@/components/ui/use-toast" // Comentado
 import { v4 as uuidv4 } from "uuid"
 
 export type Idea = {
@@ -23,8 +23,7 @@ export function useIdeas(userId: string | undefined) {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const { toast } = useToast()
-  // Get the Supabase client
+  // const { toast } = useToast() // Comentado
   const supabase = getSupabase()
 
   useEffect(() => {
@@ -64,11 +63,11 @@ export function useIdeas(userId: string | undefined) {
       } catch (err) {
         console.error("Error fetching ideas:", err)
         setError(err instanceof Error ? err : new Error("Failed to fetch ideas"))
-        toast({
-          title: "Error fetching ideas",
-          description: "There was a problem loading your ideas.",
-          variant: "destructive",
-        })
+        // toast({ // Comentado
+        //   title: "Error fetching ideas",
+        //   description: "There was a problem loading your ideas.",
+        //   variant: "destructive",
+        // })
       } finally {
         setLoading(false)
       }
@@ -129,7 +128,7 @@ export function useIdeas(userId: string | undefined) {
         }
       }
     }
-  }, [userId, toast, supabase])
+  }, [userId, /* toast, */ supabase]) // toast removido das dependências do useEffect
 
   // Helper function to fetch a single idea with its tags
   const fetchIdeaWithTags = async (ideaId: string): Promise<Idea | null> => {
@@ -188,19 +187,19 @@ export function useIdeas(userId: string | undefined) {
 
       const completeIdea = await fetchIdeaWithTags(ideaId)
 
-      toast({
-        title: "Idea created",
-        description: "Your idea has been created successfully.",
-      })
+      // toast({ // Comentado
+      //   title: "Idea created",
+      //   description: "Your idea has been created successfully.",
+      // })
 
       return { success: true, data: completeIdea }
     } catch (err) {
       console.error("Error creating idea:", err)
-      toast({
-        title: "Error creating idea",
-        description: "There was a problem creating your idea.",
-        variant: "destructive",
-      })
+      // toast({ // Comentado
+      //   title: "Error creating idea",
+      //   description: "There was a problem creating your idea.",
+      //   variant: "destructive",
+      // })
       return {
         success: false,
         error: err instanceof Error ? err : new Error("Failed to create idea"),
@@ -239,19 +238,19 @@ export function useIdeas(userId: string | undefined) {
       // Fetch the complete idea with tags
       const completeIdea = await fetchIdeaWithTags(id)
 
-      toast({
-        title: "Idea updated",
-        description: "Your idea has been updated successfully.",
-      })
+      // toast({ // Comentado
+      //   title: "Idea updated",
+      //   description: "Your idea has been updated successfully.",
+      // })
 
       return { success: true, data: completeIdea }
     } catch (err) {
       console.error("Error updating idea:", err)
-      toast({
-        title: "Error updating idea",
-        description: "There was a problem updating your idea.",
-        variant: "destructive",
-      })
+      // toast({ // Comentado
+      //   title: "Error updating idea",
+      //   description: "There was a problem updating your idea.",
+      //   variant: "destructive",
+      // })
       return {
         success: false,
         error: err instanceof Error ? err : new Error("Failed to update idea"),
@@ -272,19 +271,19 @@ export function useIdeas(userId: string | undefined) {
         throw error
       }
 
-      toast({
-        title: "Idea deleted",
-        description: "Your idea has been deleted successfully.",
-      })
+      // toast({ // Comentado
+      //   title: "Idea deleted",
+      //   description: "Your idea has been deleted successfully.",
+      // })
 
       return { success: true }
     } catch (err) {
       console.error("Error deleting idea:", err)
-      toast({
-        title: "Error deleting idea",
-        description: "There was a problem deleting your idea.",
-        variant: "destructive",
-      })
+      // toast({ // Comentado
+      //   title: "Error deleting idea",
+      //   description: "There was a problem deleting your idea.",
+      //   variant: "destructive",
+      // })
       return {
         success: false,
         error: err instanceof Error ? err : new Error("Failed to delete idea"),

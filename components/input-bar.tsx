@@ -11,18 +11,25 @@ interface InputBarProps {
   onSendMessage: (text: string) => void
   onSendImage: (file: File) => void
   isLoading: boolean
+  inputValue: string
+  onInputChange: (value: string) => void
 }
 
-export default function InputBar({ onSendMessage, onSendImage, isLoading }: InputBarProps) {
-  const [message, setMessage] = useState("")
+export default function InputBar({
+  onSendMessage,
+  onSendImage,
+  isLoading,
+  inputValue,
+  onInputChange,
+}: InputBarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isRecording, setIsRecording] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (message.trim() && !isLoading) {
-      onSendMessage(message)
-      setMessage("")
+    if ((inputValue || '').trim() && !isLoading) {
+      onSendMessage(inputValue)
+      onInputChange("")
     }
   }
 
@@ -66,7 +73,7 @@ export default function InputBar({ onSendMessage, onSendImage, isLoading }: Inpu
   ]
 
   const handleUseTemplate = (prompt: string) => {
-    setMessage(prompt)
+    onInputChange(prompt)
   }
 
   const toggleRecording = () => {
@@ -147,8 +154,8 @@ export default function InputBar({ onSendMessage, onSendImage, isLoading }: Inpu
         <div className="relative flex-1">
           <input
             type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={inputValue || ''}
+            onChange={(e) => onInputChange(e.target.value)}
             placeholder="Type your message or describe the content you want to create..."
             className="w-full border rounded-full py-3 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50"
             disabled={isLoading}
@@ -157,7 +164,7 @@ export default function InputBar({ onSendMessage, onSendImage, isLoading }: Inpu
             type="submit"
             size="icon"
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#01aef0] hover:bg-[#0099d6] text-white"
-            disabled={!message.trim() || isLoading}
+            disabled={!(inputValue || '').trim() || isLoading}
           >
             <Send className="h-4 w-4" />
             <span className="sr-only">Enviar</span>

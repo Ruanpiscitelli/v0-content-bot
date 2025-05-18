@@ -1,12 +1,17 @@
-import { createServerClient } from "@/lib/supabase-server"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import CalendarClientPage from "./CalendarClientPage"
+import type { Database } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 
 export default async function CalendarPage() {
   try {
-    const supabase = createServerClient()
+    const cookieStore = await cookies()
+    const supabase = createServerComponentClient<Database>({
+      cookies: () => cookieStore,
+    })
 
     // Get the current user
     const {

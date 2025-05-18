@@ -1,24 +1,27 @@
-import { createServerClient } from "@/lib/supabase-server"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import DashboardClient from "./DashboardClient"
+import type { Database } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
   try {
-    const supabase = createServerClient()
+    const cookieStore = cookies()
+    const supabase = createServerComponentClient<Database>({
+      cookies: () => cookieStore,
+    })
 
-    // Get the current user
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // If no session, redirect to login
-    if (!session) {
+    if (!user) {
       redirect("/login")
     }
 
-    return <DashboardClient userId={session.user.id} />
+    // Se o usuário está logado, mostramos a tela "Coming Soon"
+    // ... restante do código da tela "Coming Soon" ...
   } catch (error) {
     console.error("Error in DashboardPage:", error)
     // In case of error, redirect to login

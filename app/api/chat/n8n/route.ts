@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase-server'; // Importando o server client
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import type { Database } from '@/types/supabase';
 
 const N8N_WEBHOOK_URL = process.env.N8N_CHAT_WEBHOOK_URL || 'https://n8n-wh.datavibe.ad/webhook/contentbot';
 
@@ -29,7 +31,9 @@ interface N8nResponse {
 
 export async function POST(request: Request) {
   try {
-    const supabase = createServerClient();
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+    
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {

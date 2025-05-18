@@ -13,7 +13,7 @@ import { Instagram, Facebook, Twitter, Linkedin, Youtube, FileText, Mail, Messag
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-export default function ChatInterface() {
+export default function ChatInterface({ userId }: { userId: string }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -24,6 +24,7 @@ export default function ChatInterface() {
     },
   ])
   const [isLoading, setIsLoading] = useState(false)
+  const [currentPromptText, setCurrentPromptText] = useState("")
   const [contentType, setContentType] = useState<string>("instagram")
   const [contentStyle, setContentStyle] = useState<string>("casual")
   const [contentLength, setContentLength] = useState<number>(2) // 1-short, 2-medium, 3-long
@@ -43,20 +44,24 @@ export default function ChatInterface() {
   const handleSendMessage = async (text: string) => {
     if (isLoading) return
 
+    const textToSend = text || currentPromptText;
+    if (!textToSend.trim()) return;
+
     // Create a new message from the user
     const userMessage: Message = {
       id: uuidv4(),
-      content: text,
+      content: textToSend,
       sender: "user",
       timestamp: new Date(),
     }
 
     // Add the user message to the chat
     setMessages((prev) => [...prev, userMessage])
+    setCurrentPromptText("")
 
     // Track the event
     trackEvent("message_sent", { 
-      message_length: text.length 
+      message_length: textToSend.length
     })
 
     // Set loading state
@@ -99,7 +104,7 @@ export default function ChatInterface() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: text,
+          question: textToSend,
           history: historyToSend,
           deviceData: deviceDataResult,
         }),
@@ -236,6 +241,12 @@ export default function ChatInterface() {
     }
   }
 
+  const handlePromptSuggestionClick = (promptText: string) => {
+    setCurrentPromptText(promptText);
+    // Opcional: focar no input bar. Isso pode exigir uma ref para o input no InputBar e passá-la para cá.
+    // Por enquanto, vamos apenas popular o texto.
+  };
+
   const contentTypeIcons = {
     instagram: <Instagram className="w-4 h-4" />,
     facebook: <Facebook className="w-4 h-4" />,
@@ -269,32 +280,79 @@ export default function ChatInterface() {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Settings className="w-4 h-4" />
-                    <span className="sr-only">Configurações</span>
+                  <Button variant="ghost" size="sm" className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md flex items-center">
+                    PROMPTS
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 max-h-96 overflow-y-auto">
                   <div className="space-y-4">
                     <h4 className="font-medium">Prompt Suggestions</h4>
                     <div className="space-y-2 text-sm">
                       <p
                         className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
-                        onClick={() => handleSendMessage("Create a post about the benefits of daily meditation")}
+                        onClick={() => handlePromptSuggestionClick("Create a post about the benefits of daily meditation")}
                       >
                         Create a post about the benefits of daily meditation
                       </p>
                       <p
                         className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
-                        onClick={() => handleSendMessage("Generate 5 content ideas for my natural products brand")}
+                        onClick={() => handlePromptSuggestionClick("Generate 5 content ideas for my natural products brand")}
                       >
                         Generate 5 content ideas for my natural products brand
                       </p>
                       <p
                         className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
-                        onClick={() => handleSendMessage("Write a caption for a product launch photo")}
+                        onClick={() => handlePromptSuggestionClick("Write a caption for a product launch photo")}
                       >
                         Write a caption for a product launch photo
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Create a complete sales funnel for [product/niche], including viral content ideas to attract leads (Reels, Twitter), nurturing content (emails, YouTube), and high-converting copy for the sales page. For each stage, provide ready-to-use examples.")}
+                      >
+                        Create a complete sales funnel for [product/niche]...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Give me 5 viral content ideas for Instagram Reels, Twitter, and YouTube Shorts about [topic]. For each idea, provide a hook, a script outline, and a strong call to action.")}
+                      >
+                        Give me 5 viral content ideas for Instagram Reels, Twitter, and YouTube Shorts...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Analyze and optimize this text to boost conversion and virality, adapting it for Reels, Sales Page, and Twitter. For each format, suggest an A/B variation. Keep your response focused on digital marketing and copywriting best practices.")}
+                      >
+                        Analyze and optimize this text to boost conversion and virality...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Develop a launch campaign for [product/service] using Instagram Reels, Twitter threads, and a YouTube video. For each channel, provide an engaging hook, an outline for the main content, and a persuasive CTA designed to drive early sales or sign-ups.")}
+                      >
+                        Develop a launch campaign for [product/service]...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Suggest an irresistible lead magnet idea for [target audience/niche], and create a 3-step email nurturing sequence to warm up new leads. For each email, include a subject line, opening, value-driven body, and CTA.")}
+                      >
+                        Suggest an irresistible lead magnet idea for [target audience/niche]...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Write a high-engagement Twitter/X thread for [topic] that is designed to go viral and generate discussion. Begin with an attention-grabbing statement, build curiosity, and finish with a CTA that drives replies, retweets, or clicks.")}
+                      >
+                        Write a high-engagement Twitter/X thread for [topic]...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Create a storytelling campaign about [brand story/product transformation], adapting the narrative for Instagram Reels, YouTube Shorts, and an email broadcast. For each format, deliver a unique angle, opening line, and ending CTA to encourage shares or responses.")}
+                      >
+                        Create a storytelling campaign about [brand story/product transformation]...
+                      </p>
+                      <p
+                        className="p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePromptSuggestionClick("Write a compelling offer announcement for [special deal/product launch], adapting the copy for a Sales Page headline, a Reels script, and a Twitter post. Make sure each version uses a powerful hook, clear value proposition, and urgency-driven CTA.")}
+                      >
+                        Write a compelling offer announcement for [special deal/product launch]...
                       </p>
                     </div>
                   </div>
@@ -303,8 +361,18 @@ export default function ChatInterface() {
             </div>
           </div>
 
-          <ChatWindow messages={messages} isLoading={isLoading} />
-          <InputBar onSendMessage={handleSendMessage} onSendImage={handleSendImage} isLoading={isLoading} />
+          <ChatWindow 
+            messages={messages} 
+            isLoading={isLoading} 
+            userId={userId}
+          />
+          <InputBar 
+            onSendMessage={handleSendMessage} 
+            onSendImage={handleSendImage} 
+            isLoading={isLoading} 
+            inputValue={currentPromptText}
+            onInputChange={setCurrentPromptText}
+          />
           {isLoading && (
             <div className="text-center mt-2 text-sm text-gray-500">Generating personalized content...</div>
           )}

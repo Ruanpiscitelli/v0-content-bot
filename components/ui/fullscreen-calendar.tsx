@@ -33,6 +33,7 @@ interface Event {
   name: string
   time: string
   datetime: string
+  description?: string
 }
 
 interface CalendarData {
@@ -42,6 +43,7 @@ interface CalendarData {
 
 interface FullScreenCalendarProps {
   data: CalendarData[]
+  onEventClick?: (event: Event) => void
 }
 
 const colStartClasses = [
@@ -54,7 +56,7 @@ const colStartClasses = [
   "col-start-7",
 ]
 
-export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
+export function FullScreenCalendar({ data, onEventClick }: FullScreenCalendarProps) {
   const today = startOfToday()
   const [selectedDay, setSelectedDay] = React.useState(today)
   const [currentMonth, setCurrentMonth] = React.useState(
@@ -272,30 +274,40 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                     </button>
                   </header>
                   <div className="flex-1 p-2.5">
-                    {data
-                      .filter((event) => isSameDay(event.day, day))
-                      .map((day) => (
-                        <div key={day.day.toString()} className="space-y-1.5">
-                          {day.events.slice(0, 1).map((event) => (
-                            <div
-                              key={event.id}
-                              className="flex flex-col items-start gap-1 rounded-lg border bg-muted/50 p-2 text-xs leading-tight"
-                            >
-                              <p className="font-medium leading-none">
-                                {event.name}
-                              </p>
-                              <p className="leading-none text-muted-foreground">
-                                {event.time}
-                              </p>
-                            </div>
-                          ))}
-                          {day.events.length > 1 && (
-                            <div className="text-xs text-muted-foreground">
-                              + {day.events.length - 1} more
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                    {(() => {
+                      const dayWithEvents = data.find((d) => isSameDay(d.day, day));
+                      if (dayWithEvents && dayWithEvents.events.length > 0) {
+                        return (
+                          <ol className="mt-2 space-y-1.5">
+                            {dayWithEvents.events.slice(0, 2)
+                              .map((event) => (
+                                <li key={event.id}>
+                                  <a
+                                    href="#"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      if (onEventClick) {
+                                        onEventClick(event);
+                                      }
+                                    }}
+                                    className="group block overflow-y-auto rounded-lg bg-muted p-2 text-xs leading-5 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                  >
+                                    <p className="order-1 font-semibold text-muted-foreground group-hover:text-accent-foreground">
+                                      {event.name}
+                                    </p>
+                                    <p className="text-muted-foreground group-hover:text-accent-foreground">
+                                      <time dateTime={event.datetime}>
+                                        {event.time}
+                                      </time>
+                                    </p>
+                                  </a>
+                                </li>
+                              ))}
+                          </ol>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
               ),

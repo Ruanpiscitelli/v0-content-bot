@@ -40,20 +40,6 @@ export default function ChatHeader() {
           <h1 className="text-2xl font-extrabold tracking-tight">Virallyzer</h1>
         </div>
 
-        {/* Search Bar */}
-        <div className="hidden md:flex relative max-w-md w-full mx-4">
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search here"
-              className="w-full py-2 pl-4 pr-10 rounded-full border-2 border-black focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <Search className="h-5 w-5 text-gray-500" />
-            </div>
-          </div>
-        </div>
-
         {/* Mobile Menu Button */}
         <button className="md:hidden cartoon-button bg-white px-3 py-1.5 rounded-full">
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

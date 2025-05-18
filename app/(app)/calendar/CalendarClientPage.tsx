@@ -8,14 +8,18 @@ import { FullScreenCalendar, type DayWithEvents } from "@/components/ui/fullscre
 import { toast } from "@/components/ui/use-toast" // Kept for potential future use, but not in current FullScreenCalendar example
 import { useIdeas, type Idea as IdeaFromHook } from "@/hooks/useIdeas"
 import { parseISO, format, startOfDay } from "date-fns"
+import { Button } from "@/components/ui/button"
 
 // Define the Event type expected by FullScreenCalendar (based on dummyEvents)
-interface FullScreenCalendarEvent {
+// Renomeando para FullScreenEventType para evitar conflito com o Event do DOM global se necessário em outros contextos.
+interface FullScreenEventType {
   id: string | number;
   name: string;
-  time: string; // e.g., "10:00 AM"
-  datetime: string; // e.g., "2025-01-02T00:00:00Z"
-  // Add other fields if FullScreenCalendar supports them, like desc, platform, status, imageUrl
+  time: string; 
+  datetime: string; 
+  description?: string;
+  // Adicione outros campos que você possa ter adicionado à interface Event em fullscreen-calendar.tsx
+  // Por exemplo: platform?: string; status?: string;
 }
 
 // The DayWithEvents type from FullScreenCalendar typically looks like:
@@ -33,6 +37,21 @@ export default function CalendarClientPage({ userId }: CalendarClientPageProps) 
   // const [viewMode, setViewMode] = useState<"calendar" | "timeline" | "advanced">("calendar") // Old view mode
   const { ideas, loading: ideasLoading, error: ideasError } = useIdeas(userId)
   const [calendarData, setCalendarData] = useState<DayWithEvents[]>([])
+  const [selectedEvent, setSelectedEvent] = useState<FullScreenEventType | null>(null); // Estado para o evento selecionado
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar o modal
+
+  // Função para lidar com o clique no evento
+  const handleEventClick = (event: FullScreenEventType) => {
+    console.log("Event clicked:", event);
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+    // Aqui você abriria um modal para mostrar os detalhes do evento
+    // Por exemplo: setShowEventModal(true);
+    toast({
+      title: "Event Clicked (Placeholder)",
+      description: `Name: ${event.name} at ${event.time}. Implement modal to see details.`,
+    });
+  };
 
   useEffect(() => {
     if (ideas && ideas.length > 0) {
@@ -59,8 +78,9 @@ export default function CalendarClientPage({ userId }: CalendarClientPageProps) 
               // datetime should be the specific date string for that day, often used for comparisons or headers
               // The dummy data used "YYYY-MM-DDTHH:mm", let's use the start of the day in UTC for consistency.
               datetime: startOfDay(scheduledDate).toISOString(), // e.g., "2025-01-02T00:00:00.000Z"
+              description: idea.idea_text || "",
               // You can add other properties from 'idea' if FullScreenCalendar supports rendering them
-              // e.g., status: idea.status, description: idea.idea_text
+              // e.g., status: idea.status
             })
           } catch (e) {
             console.error("Error processing idea for calendar:", idea, e);
@@ -131,7 +151,10 @@ export default function CalendarClientPage({ userId }: CalendarClientPageProps) 
       */}
       <div className="flex-1 overflow-auto"> {/* Added for potentially scrollable content if calendar itself doesn't manage it */}
         {calendarData.length > 0 ? (
-          <FullScreenCalendar data={calendarData} />
+          <FullScreenCalendar 
+            data={calendarData}
+            onEventClick={handleEventClick} // Passar a função de clique aqui
+          />
         ) : (
           !ideasLoading && ( // Show only if not loading and no data
             <div className="flex items-center justify-center h-full">
@@ -140,6 +163,26 @@ export default function CalendarClientPage({ userId }: CalendarClientPageProps) 
           )
         )}
       </div>
+
+      {/* Placeholder para o Modal de Visualização do Evento */}
+      {isModalOpen && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-background p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-xl font-bold mb-4">{selectedEvent.name}</h2>
+            <p className="text-sm text-muted-foreground mb-2">Time: {selectedEvent.time}</p>
+            <p className="text-sm text-muted-foreground mb-4">Date: {format(parseISO(selectedEvent.datetime), "PPP")}</p>
+            {/* Adicione mais detalhes do evento aqui */}
+            <div className="mb-4">
+              <strong className="block mb-1">Details:</strong>
+              <div 
+                className="prose dark:prose-invert max-w-none" // Adicionando classes do Tailwind Typography
+                dangerouslySetInnerHTML={{ __html: selectedEvent.description || "No description available." }} 
+              />
+            </div>
+            <Button onClick={() => setIsModalOpen(false)} variant="outline">Close</Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

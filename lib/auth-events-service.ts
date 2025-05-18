@@ -31,7 +31,7 @@ export async function getUserAuthEvents(
   eventTypes?: AuthEventType[],
 ): Promise<{ events: AuthEvent[]; error: string | null }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
     let query = supabase
@@ -67,7 +67,7 @@ export async function recordAuthEvent(
   ipAddress?: string,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
     // Se userId não foi fornecido, tente obter da sessão atual
