@@ -22,18 +22,18 @@ export default function ForgotPassword() {
     setLoading(true)
 
     // Record password reset request
-    recordAuthEvent("password_reset_request", "pending", null, { email })
+    await recordAuthEvent("password_reset_request", "pending", null, { email })
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+        redirectTo: `${window.location.origin}/reset-password`,
       })
 
       if (error) {
         setError(error.message)
         setLoading(false)
         // Record failed password reset request
-        recordAuthEvent("password_reset_request", "failed", null, {
+        await recordAuthEvent("password_reset_request", "failed", null, {
           email,
           error: error.message,
         })
@@ -41,7 +41,7 @@ export default function ForgotPassword() {
       }
 
       // Record successful password reset request
-      recordAuthEvent("password_reset_request", "success", null, { email })
+      await recordAuthEvent("password_reset_request", "success", null, { email })
 
       setSuccess(true)
       setLoading(false)
