@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { useProfile } from "@/hooks/useProfile"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import {
   LayoutDashboard,
   TrendingUp,
@@ -193,16 +193,12 @@ export default function AppSidebar() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { signOut } = useAuth()
   const { profile, loading: profileLoading } = useProfile()
-  const { toast } = useToast()
 
   // Transform profile data to the format expected by UserProfileSection
   const userData = profile ? {
     name: profile.full_name || profile.username || "Usuário",
-    avatar_url: profile.avatar_url
-  } : {
-    name: "Usuário",
-    avatar_url: null
-  }
+    avatar_url: profile.avatar_url === null ? undefined : profile.avatar_url,
+  } : undefined;
 
   const handleLogoutClick = () => {
     setShowLogoutDialog(true)
@@ -210,55 +206,18 @@ export default function AppSidebar() {
   }
 
   const handleLogoutConfirm = async () => {
+    setIsLoggingOut(true)
+    trackEvent("Logout Button Clicked", { component_location: "Sidebar" })
     try {
-      setIsLoggingOut(true)
-      trackEvent("logout_confirmed")
-
-      const result = await signOut()
-
-      if (result.success) {
-        // Show success toast notification
-        toast({
-          title: "Logout realizado com sucesso!",
-          description: "Você foi desconectado da sua conta.",
-          variant: "default",
-          duration: 3000,
-          className: "cartoon-border",
-          icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
-        })
-
-        // Record successful logout event
-        trackEvent("logout_successful")
-
-        // Note: The redirect to login page is handled by the signOut function
-        // or by the auth middleware, so we don't need to handle it here
+      const { success, error } = await signOut()
+      if (success) {
+        toast.success("Logout successful", { description: "You have been logged out." })
+        // router.push('/login'); // Comentado pois o onAuthStateChange deve cuidar do redirect
       } else {
-        console.error("Erro ao fazer logout:", result.error)
-
-        // Show error toast notification
-        toast({
-          title: "Erro ao fazer logout",
-          description: "Ocorreu um problema ao tentar desconectar. Tente novamente.",
-          variant: "destructive",
-          duration: 5000,
-          className: "cartoon-border",
-        })
-
-        trackEvent("logout_error", { error: result.error })
+        toast.error("Logout failed", { description: error?.message || "An unknown error occurred." })
       }
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error)
-
-      // Show error toast notification
-      toast({
-        title: "Erro ao fazer logout",
-        description: "Ocorreu um problema ao tentar desconectar. Tente novamente.",
-        variant: "destructive",
-        duration: 5000,
-        className: "cartoon-border",
-      })
-
-      trackEvent("logout_error", { error: String(error) })
+    } catch (error: any) {
+      toast.error("Logout error", { description: error.message || "An unexpected error occurred."})
     } finally {
       setIsLoggingOut(false)
       setShowLogoutDialog(false)

@@ -5,7 +5,7 @@ import Script from "next/script"
 import AppSidebar from "@/components/app-sidebar"
 import { useState, useEffect } from "react"
 import { Inter } from "next/font/google"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -57,7 +57,7 @@ export default function AppLayout({
           </div>
         </main>
       </div>
-      <Toaster />
+      <Toaster richColors />
     </div>
   )
 }
