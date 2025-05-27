@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useProfile } from "@/hooks/useProfile"
 import { toast } from "sonner"
 import {
-  LayoutDashboard,
+
   TrendingUp,
   Calendar,
   Settings,
@@ -265,12 +265,7 @@ export default function AppSidebar() {
 
   // Updated navigation items focused on content creation
   const navItems = [
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      active: pathname === "/dashboard",
-    },
+
     {
       name: "Create Content",
       href: "/chat",

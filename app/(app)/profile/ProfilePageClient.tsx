@@ -12,8 +12,8 @@ export default function ProfilePageClient() {
           <nav className="flex mt-3 sm:mt-0" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-sm text-gray-500">
               <li>
-                <a href="/dashboard" className="hover:text-primary">
-                  Dashboard
+                <a href="/ideas" className="hover:text-primary">
+                                      Ideas
                 </a>
               </li>
               <li className="flex items-center">

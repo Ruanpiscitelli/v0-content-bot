@@ -36,10 +36,10 @@ export function LoginHistoryCard() {
 
         // Obter o usuário atual
         const {
-          data: { session },
-        } = await supabase.auth.getSession()
+          data: { user },
+        } = await supabase.auth.getUser()
 
-        if (!session?.user?.id) {
+        if (!user?.id) {
           throw new Error("User not authenticated")
         }
 
@@ -47,7 +47,7 @@ export function LoginHistoryCard() {
         const { data, error } = await supabase
           .from("auth_events")
           .select("*")
-          .eq("user_id", session.user.id)
+          .eq("user_id", user.id)
           .in("event_type", ["login_success", "login_failed", "login_attempt"])
           .order("created_at", { ascending: false })
           .limit(5)

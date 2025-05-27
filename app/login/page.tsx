@@ -54,7 +54,7 @@ export default function Login() {
         return
       }
 
-      router.push("/dashboard")
+              router.push("/ideas")
     } catch (err) {
       setError("An unexpected error occurred")
       console.error(err)
@@ -92,7 +92,7 @@ export default function Login() {
             {/* Card header */}
             <div className="px-6 py-5 bg-gradient-to-r from-[#5281EE] to-[#5281EE]/80 text-white">
               <h2 className="text-xl font-semibold">Sign in to your account</h2>
-              <p className="text-[#5281EE]/90 text-sm mt-1">Access your content dashboard</p>
+                <p className="text-[#5281EE]/90 text-sm mt-1">Access your content creation tools</p>
             </div>
 
             {/* Messages */}

@@ -13,7 +13,10 @@ const publicRoutes = [
   "/", // Landing page
 ]
 
-// Define routes that should redirect to dashboard if user is already logged in
+// Define admin routes that require special authentication
+const adminRoutes = ["/admin"]
+
+  // Define routes that should redirect to ideas page if user is already logged in
 // Note: reset-password is removed from this list because we need to allow logged in users to reset their password
 const authRoutes = ["/login", "/signup", "/forgot-password"]
 
@@ -72,10 +75,10 @@ export async function middleware(req: NextRequest) {
       }
     )
 
-    // Check if we have a session
+    // Check if we have a session - using getUser() as recommended by Supabase docs
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
     const path = req.nextUrl.pathname
 
@@ -85,13 +88,30 @@ export async function middleware(req: NextRequest) {
     // Check if the path is an auth route (login, signup, etc.)
     const isAuthRoute = authRoutes.some((route) => path === route || path.startsWith(`${route}/`))
 
+    // Check if the path is an admin route
+    const isAdminRoute = adminRoutes.some((route) => path === route || path.startsWith(`${route}/`))
+
     // Handle API routes separately - we'll let them handle their own auth
     if (path.startsWith("/api/")) {
       return res
     }
 
+    // If trying to access admin routes
+    if (isAdminRoute) {
+      // Admin routes require authentication
+      if (!user) {
+        const redirectUrl = new URL("/login", req.url)
+        redirectUrl.searchParams.set("redirectUrl", req.url)
+        return NextResponse.redirect(redirectUrl)
+      }
+      
+      // For now, all authenticated users can access admin panel
+      // In the future, you could add role-based checks here
+      return res
+    }
+
     // If user is not logged in and trying to access a protected route
-    if (!session && !isPublicRoute) {
+    if (!user && !isPublicRoute) {
       // Create a URL to redirect to after login
       const redirectUrl = new URL("/login", req.url)
       redirectUrl.searchParams.set("redirectUrl", req.url)
@@ -100,9 +120,9 @@ export async function middleware(req: NextRequest) {
     }
 
     // If user is logged in and trying to access an auth route
-    if (session && isAuthRoute) {
-      // Redirect to dashboard
-      return NextResponse.redirect(new URL("/dashboard", req.url))
+    if (user && isAuthRoute) {
+              // Redirect to ideas page
+      return NextResponse.redirect(new URL("/ideas", req.url))
     }
 
     return res
