@@ -54,7 +54,7 @@ export default function Login() {
         return
       }
 
-              router.push("/ideas")
+              router.push("/chat")
     } catch (err) {
       setError("An unexpected error occurred")
       console.error(err)

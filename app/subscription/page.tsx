@@ -28,7 +28,7 @@ export default function SubscriptionPage() {
       if (error) throw error
 
       setSubscriptionStatus(true)
-      router.push("/ideas")
+      router.push("/chat")
     } catch (error) {
       console.error("Error updating subscription:", error)
       alert("Failed to update subscription status")

@@ -16,7 +16,7 @@ const publicRoutes = [
 // Define admin routes that require special authentication
 const adminRoutes = ["/admin"]
 
-  // Define routes that should redirect to ideas page if user is already logged in
+  // Define routes that should redirect to chat page if user is already logged in
 // Note: reset-password is removed from this list because we need to allow logged in users to reset their password
 const authRoutes = ["/login", "/signup", "/forgot-password"]
 
@@ -121,8 +121,8 @@ export async function middleware(req: NextRequest) {
 
     // If user is logged in and trying to access an auth route
     if (user && isAuthRoute) {
-              // Redirect to ideas page
-      return NextResponse.redirect(new URL("/ideas", req.url))
+                      // Redirect to chat page
+        return NextResponse.redirect(new URL("/chat", req.url))
     }
 
     return res
