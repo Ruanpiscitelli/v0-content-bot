@@ -1,6 +1,6 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import type { Database } from "@/types/supabase"
 
@@ -26,6 +26,32 @@ export type AuthEventType =
 
 export type AuthEvent = Database["public"]["Tables"]["auth_events"]["Row"]
 
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
+}
+
 export async function getUserAuthEvents(
   userId: string,
   limit: number,
@@ -33,8 +59,7 @@ export async function getUserAuthEvents(
   eventTypes?: AuthEventType[],
 ): Promise<{ events: AuthEvent[]; error: string | null }> {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+    const supabase = await createSupabaseClient();
 
     let query = supabase
       .from("auth_events")
@@ -69,8 +94,7 @@ export async function recordAuthEvent(
   ipAddress?: string,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+    const supabase = await createSupabaseClient();
 
     // Se userId não foi fornecido, tente obter da sessão atual
     let userIdToUse = userId
@@ -78,9 +102,9 @@ export async function recordAuthEvent(
     if (!userIdToUse) {
       // Obter o usuário atual da sessão
       const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      userIdToUse = session?.user?.id
+        data: { user },
+      } = await supabase.auth.getUser()
+      userIdToUse = user?.id
     }
 
     const { error } = await supabase.from("auth_events").insert({

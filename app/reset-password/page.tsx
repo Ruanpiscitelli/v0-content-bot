@@ -21,21 +21,21 @@ export default function ResetPassword() {
   const [hasSession, setHasSession] = useState(false)
   const router = useRouter()
 
-  // Check if we have a session with a recovery token
+  // Check if we have a user with a recovery token
   useEffect(() => {
-    const checkSession = async () => {
+    const checkUser = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession()
+        const { data, error } = await supabase.auth.getUser()
 
         if (error) {
-          console.error("Error checking session:", error.message)
+          console.error("Error checking user:", error.message)
           setError("Unable to verify your session. Please try the reset password process again.")
           setSessionChecked(true)
           return
         }
 
-        // If no session or no access token, show error
-        if (!data.session) {
+        // If no user, show error
+        if (!data.user) {
           setError("Your password reset link has expired or is invalid. Please request a new one.")
           setSessionChecked(true)
           return
@@ -44,13 +44,13 @@ export default function ResetPassword() {
         setHasSession(true)
         setSessionChecked(true)
       } catch (err) {
-        console.error("Unexpected error checking session:", err)
+        console.error("Unexpected error checking user:", err)
         setError("An unexpected error occurred. Please try again.")
         setSessionChecked(true)
       }
     }
 
-    checkSession()
+    checkUser()
   }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,11 +71,11 @@ export default function ResetPassword() {
     setLoading(true)
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const userId = sessionData?.session?.user?.id
+      const { data: userData } = await supabase.auth.getUser()
+      const userId = userData?.user?.id
 
       // Record password reset attempt
-      recordAuthEvent("password_reset_success", "pending", userId)
+      await recordAuthEvent("password_reset_success", "pending", userId)
 
       const { error } = await supabase.auth.updateUser({
         password: password,
@@ -85,14 +85,14 @@ export default function ResetPassword() {
         setError(error.message)
         setLoading(false)
         // Record failed password reset
-        recordAuthEvent("password_reset_failed", "failed", userId, {
+        await recordAuthEvent("password_reset_failed", "failed", userId, {
           error: error.message,
         })
         return
       }
 
       // Record successful password reset
-      recordAuthEvent("password_reset_success", "success", userId)
+      await recordAuthEvent("password_reset_success", "success", userId)
 
       setSuccess(true)
       setLoading(false)
@@ -106,7 +106,7 @@ export default function ResetPassword() {
       console.error(err)
       setLoading(false)
       // Record failed password reset
-      recordAuthEvent("password_reset_failed", "failed", null, {
+      await recordAuthEvent("password_reset_failed", "failed", null, {
         error: "Unexpected error",
       })
     }

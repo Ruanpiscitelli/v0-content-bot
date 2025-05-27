@@ -10,15 +10,15 @@ export default async function ProfilePage() {
 
     // Get the current user
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // If no session, redirect to login
-    if (!session) {
+    // If no user, redirect to login
+    if (!user) {
       redirect("/login")
     }
 
-    return <ProfilePageClient userId={session.user.id} />
+    return <ProfilePageClient userId={user.id} />
   } catch (error) {
     console.error("Error in ProfilePage:", error)
     // In case of error, redirect to login

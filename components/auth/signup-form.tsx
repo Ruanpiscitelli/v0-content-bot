@@ -30,16 +30,16 @@ export default function SignupForm() {
     }
 
     // Record signup attempt
-    recordAuthEvent("signup_attempt", "pending", null, { email })
+    await recordAuthEvent("signup_attempt", "pending", undefined, { email })
 
     try {
-      const { success, error, data } = await signUp(email, password, fullName, phone)
+      const { success, error, user } = await signUp(email, password, fullName, phone)
 
       if (!success) {
         setError(error?.message || "Failed to sign up")
         setLoading(false)
         // Record failed signup
-        recordAuthEvent("signup_failed", "failed", null, {
+        await recordAuthEvent("signup_failed", "failed", undefined, {
           email,
           error: error?.message,
         })
@@ -47,7 +47,7 @@ export default function SignupForm() {
       }
 
       // Record successful signup
-      recordAuthEvent("signup_success", "success", data?.user?.id, { email })
+      await recordAuthEvent("signup_success", "success", user?.id, { email })
 
       window.location.href = "/signup/confirmation"
     } catch (err) {
@@ -55,7 +55,7 @@ export default function SignupForm() {
       setError("An unexpected error occurred")
       setLoading(false)
       // Record failed signup
-      recordAuthEvent("signup_failed", "failed", null, {
+      await recordAuthEvent("signup_failed", "failed", undefined, {
         email,
         error: "Unexpected error",
       })
