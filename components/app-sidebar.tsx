@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth"
 import { useProfile } from "@/hooks/useProfile"
 import { toast } from "sonner"
 import {
-
   TrendingUp,
   Calendar,
   Settings,
@@ -24,6 +23,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Rocket,
+  Construction,
+  Image,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -57,7 +58,7 @@ function UserProfileSection({
   onLogoutClick: () => void
   isLoading?: boolean
 }) {
-  const displayName = isLoading ? "Carregando..." : (user?.name || "Usuário")
+  const displayName = isLoading ? "Loading..." : (user?.name || "User")
   const avatarUrl = user?.avatar_url
   return (
     <div className={cn("mt-1 mb-2 px-3 py-2", isCollapsed ? "flex justify-center" : "border-t border-white/10")}>
@@ -195,10 +196,10 @@ export default function AppSidebar() {
   const { profile, loading: profileLoading } = useProfile()
 
   // Transform profile data to the format expected by UserProfileSection
-  const userData = profile ? {
-    name: profile.full_name || profile.username || "Usuário",
-    avatar_url: profile.avatar_url === null ? undefined : profile.avatar_url,
-  } : undefined;
+  const userData = {
+    name: profile?.full_name || profile?.username || "User",
+    avatar_url: profile?.avatar_url === null ? undefined : profile?.avatar_url,
+  };
 
   const handleLogoutClick = () => {
     setShowLogoutDialog(true)
@@ -212,7 +213,7 @@ export default function AppSidebar() {
       const { success, error } = await signOut()
       if (success) {
         toast.success("Logout successful", { description: "You have been logged out." })
-        // router.push('/login'); // Comentado pois o onAuthStateChange deve cuidar do redirect
+        // router.push('/login'); // Commented as onAuthStateChange should handle redirect
       } else {
         toast.error("Logout failed", { description: error?.message || "An unknown error occurred." })
       }
@@ -265,7 +266,6 @@ export default function AppSidebar() {
 
   // Updated navigation items focused on content creation
   const navItems = [
-
     {
       name: "Create Content",
       href: "/chat",
@@ -290,6 +290,18 @@ export default function AppSidebar() {
       href: "/trends",
       icon: <TrendingUp className="w-5 h-5" />,
       active: pathname === "/trends",
+    },
+    {
+      name: "Tools",
+      href: "/tools",
+      icon: <Construction className="w-5 h-5" />,
+      active: pathname === "/tools",
+    },
+    {
+      name: "Gallery",
+      href: "/gallery",
+      icon: <Image className="w-5 h-5" />,
+      active: pathname === "/gallery",
     },
     {
       name: "Settings",
@@ -524,22 +536,22 @@ export default function AppSidebar() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Confirmar Logout
+              Confirm Logout
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja sair? Você precisará fazer login novamente para acessar sua conta.
+              Are you sure you want to sign out? You'll need to log in again to access your account.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleLogoutCancel} className="cartoon-border">
-              Cancelar
+              Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleLogoutConfirm}
               className="bg-red-600 hover:bg-red-700 text-white cartoon-border"
               disabled={isLoggingOut}
             >
-              {isLoggingOut ? "Saindo..." : "Sim, sair"}
+              {isLoggingOut ? "Signing out..." : "Yes, sign out"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -29,18 +29,40 @@ export function useProfile() {
           .from("profiles")
           .select("*")
           .eq("id", user.id)
-          .single()
+          .maybeSingle()
 
         if (error) {
           // Se for erro de "Row not found", não é um erro crítico
           if (error.code === 'PGRST116') {
-            console.log("Profile not found, this is normal for new users")
-            setError(null)
+            console.log("Profile not found, creating one...")
+            // Tentar criar um perfil automaticamente
+            const { data: newProfile, error: createError } = await supabaseClient
+              .from("profiles")
+              .insert({
+                id: user.id,
+                full_name: null,
+                username: null,
+                bio: null,
+                avatar_url: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .select()
+              .maybeSingle()
+
+            if (createError) {
+              console.error("Error creating profile:", createError)
+              setError(null) // Não definir erro crítico
+              setProfile(null)
+            } else {
+              console.log("Profile created successfully:", newProfile)
+              setProfile(newProfile)
+            }
           } else {
             console.error("Error fetching profile:", error)
             setError(error.message)
+            setProfile(null)
           }
-          setProfile(null)
         } else {
           setProfile(data)
         }
@@ -65,10 +87,13 @@ export function useProfile() {
     try {
       const { data, error } = await supabaseClient
         .from("profiles")
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq("id", user.id)
+        .upsert({ 
+          id: user.id,
+          ...updates, 
+          updated_at: new Date().toISOString() 
+        })
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error("Error updating profile:", error)
@@ -99,12 +124,37 @@ export function useProfile() {
               .from("profiles")
               .select("*")
               .eq("id", user.id)
-              .single()
+              .maybeSingle()
 
             if (error) {
-              console.error("Error fetching profile:", error)
-              setError(error.message)
-              setProfile(null)
+              if (error.code === 'PGRST116') {
+                // Tentar criar um perfil automaticamente
+                const { data: newProfile, error: createError } = await supabaseClient
+                  .from("profiles")
+                  .insert({
+                    id: user.id,
+                    full_name: null,
+                    username: null,
+                    bio: null,
+                    avatar_url: null,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                  })
+                  .select()
+                  .maybeSingle()
+
+                if (createError) {
+                  console.error("Error creating profile:", createError)
+                  setError(null)
+                  setProfile(null)
+                } else {
+                  setProfile(newProfile)
+                }
+              } else {
+                console.error("Error fetching profile:", error)
+                setError(error.message)
+                setProfile(null)
+              }
             } else {
               setProfile(data)
             }
