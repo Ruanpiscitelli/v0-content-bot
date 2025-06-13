@@ -1,14 +1,16 @@
 import { cn } from "@/lib/utils"
+import { ReactNode } from "react"
 
 interface SectionHeaderProps {
-  title: string
-  subtitle?: string
-  description?: string
+  title: string | ReactNode
+  subtitle?: string | ReactNode
+  description?: string | ReactNode
   withLine?: boolean
   centered?: boolean
   titleClassName?: string
   subtitleClassName?: string
   descriptionClassName?: string
+  className?: string
 }
 
 export function SectionHeader({
@@ -20,9 +22,10 @@ export function SectionHeader({
   titleClassName,
   subtitleClassName,
   descriptionClassName,
+  className,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("mb-12", centered && "text-center")}>
+    <div className={cn("mb-12", centered && "text-center", className)}>
       {subtitle && (
         <h3
           className={cn(

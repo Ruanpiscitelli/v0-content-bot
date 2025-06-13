@@ -99,7 +99,7 @@ export default function ContentCalendar({ events, onEventUpdate }: ContentCalend
         <Calendar
           mode="single"
           selected={selectedDate}
-          onSelect={setSelectedDate}
+          onSelect={(date) => setSelectedDate(date || undefined)}
           locale={enUS}
           className="w-full"
           modifiers={{

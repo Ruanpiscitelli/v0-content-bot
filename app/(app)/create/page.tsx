@@ -1,252 +1,218 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ContentTemplatesLibrary, type ContentTemplate } from "@/components/templates/content-templates-library"
-import { ContentEditor } from "@/components/editor/content-editor"
-import { PlatformPreview } from "@/components/preview/platform-preview"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Save, Share2, CalendarPlus, Sparkles, Wand2 } from "lucide-react"
-import { trackEvent } from "@/lib/analytics"
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Plus, Image, Video, Music, MessageSquare, Sparkles, FileText } from "lucide-react";
+import Link from "next/link";
 
-export default function CreateContentPage() {
-  const [activeTab, setActiveTab] = useState("templates")
-  const [selectedTemplate, setSelectedTemplate] = useState<ContentTemplate | null>(null)
-  const [generatedContent, setGeneratedContent] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [contentTitle, setContentTitle] = useState("")
-  const [contentPrompt, setContentPrompt] = useState("")
-  const [selectedPlatform, setSelectedPlatform] = useState("instagram")
-  const [contentStyle, setContentStyle] = useState("casual")
+export default function CreatePage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const supabase = createClient();
 
-  const handleSelectTemplate = (template: ContentTemplate) => {
-    setSelectedTemplate(template)
-    setContentPrompt(template.prompt)
-    setActiveTab("create")
-    trackEvent("template_selected", { template_id: template.id, template_title: template.title })
-  }
-
-  const handleGenerateContent = async () => {
-    if (!contentPrompt.trim()) return
-
-    setIsGenerating(true)
-    trackEvent("content_generation_started", {
-      platform: selectedPlatform,
-      style: contentStyle,
-      prompt_length: contentPrompt.length,
-    })
-
-    try {
-      // In a real implementation, this would call an API
-      // For now, we'll simulate content generation with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Generate sample content based on platform
-      let sampleContent = ""
-
-      if (selectedPlatform === "instagram") {
-        sampleContent = `✨ ${contentTitle || "Título do Post"} ✨\n\nVocê já parou para pensar como pequenas mudanças podem transformar completamente seus resultados? 🤔\n\nHoje quero compartilhar com você 3 estratégias que revolucionaram minha abordagem:\n\n1️⃣ Consistência acima de perfeição\n2️⃣ Foco em valor, não em volume\n3️⃣ Conexão autêntica com a audiência\n\nImplementei essas mudanças há apenas 30 dias e os resultados já são visíveis! Engajamento aumentou em 47% e as conversões dobraram. 📈\n\nE você, qual dessas estratégias vai implementar primeiro? Conta nos comentários! 👇\n\n#MarketingDigital #Estratégias #CrescimentoOrgânico`
-      } else if (selectedPlatform === "twitter") {
-        sampleContent = `Pequenas mudanças, grandes resultados:\n\n1. Consistência > Perfeição\n2. Valor > Volume\n3. Autenticidade > Tendências\n\nImplementei por 30 dias:\n• Engajamento +47%\n• Conversões +100%\n\nQual você tentaria primeiro?`
-      } else if (selectedPlatform === "linkedin") {
-        sampleContent = `3 Estratégias que Transformaram Meus Resultados em 30 Dias\n\nNo mundo acelerado do marketing digital, é fácil se perder em táticas sem resultados concretos. Após muita experimentação, identifiquei 3 princípios fundamentais que mudaram completamente minha abordagem:\n\n1. Consistência acima de perfeição\nPublicar regularmente, mesmo que não seja perfeito, construiu mais confiança com minha audiência do que posts esporádicos "perfeitos".\n\n2. Foco em valor, não em volume\nReduzir a quantidade de conteúdo para aumentar a qualidade resultou em maior engajamento por post.\n\n3. Conexão autêntica com a audiência\nResponder comentários e criar conteúdo baseado em perguntas reais gerou mais conversões que qualquer tática de venda.\n\nOs resultados após 30 dias:\n• 47% de aumento em engajamento\n• 100% de aumento em conversões\n• Crescimento de comunidade mais qualificada\n\nQual dessas estratégias você acredita que teria maior impacto no seu negócio?\n\n#MarketingDigital #Estratégias #ResultadosReais`
-      } else {
-        sampleContent = `3 Estratégias que Transformaram Meus Resultados\n\nVocê já parou para pensar como pequenas mudanças podem transformar completamente seus resultados?\n\nHoje quero compartilhar com você 3 estratégias que revolucionaram minha abordagem:\n\n1. Consistência acima de perfeição\n2. Foco em valor, não em volume\n3. Conexão autêntica com a audiência\n\nImplementei essas mudanças há apenas 30 dias e os resultados já são visíveis! Engajamento aumentou em 47% e as conversões dobraram.\n\nE você, qual dessas estratégias vai implementar primeiro? Compartilhe nos comentários!`
+  useEffect(() => {
+    async function getUser() {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Error loading user:', error);
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Erro ao carregar informações do usuário",
+        });
+      } finally {
+        setLoading(false);
       }
-
-      setGeneratedContent(sampleContent)
-      setActiveTab("edit")
-      trackEvent("content_generation_completed", { success: true })
-    } catch (error) {
-      console.error("Error generating content:", error)
-      trackEvent("content_generation_completed", { success: false, error: String(error) })
-    } finally {
-      setIsGenerating(false)
     }
+
+    getUser();
+  }, [supabase, toast]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
-  const handleSaveContent = (content: string) => {
-    setGeneratedContent(content)
-    // In a real implementation, this would save to a database
-    trackEvent("content_saved", { platform: selectedPlatform, content_length: content.length })
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Acesso Negado</CardTitle>
+            <CardDescription>
+              Você precisa estar logado para acessar esta página
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/login">Fazer Login</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
+
+  const contentTypes = [
+    {
+      title: "Geração de Imagens",
+      description: "Crie imagens incríveis com IA generativa",
+      icon: Image,
+      href: "/tools/image-generation",
+      gradient: "from-pink-500 to-violet-500",
+      available: true,
+    },
+    {
+      title: "Geração de Vídeos",
+      description: "Produza vídeos de alta qualidade usando IA",
+      icon: Video,
+      href: "/tools/video-generation",
+      gradient: "from-blue-500 to-cyan-500",
+      available: true,
+    },
+    {
+      title: "Geração de Áudio",
+      description: "Sintetize voz e áudio com tecnologia avançada",
+      icon: Music,
+      href: "/tools/audio-generation",
+      gradient: "from-green-500 to-emerald-500",
+      available: true,
+    },
+    {
+      title: "Lip Sync",
+      description: "Sincronize áudio com movimentos labiais",
+      icon: MessageSquare,
+      href: "/tools/lip-sync",
+      gradient: "from-orange-500 to-red-500",
+      available: true,
+    },
+    {
+      title: "Chat Inteligente",
+      description: "Converse com IA para gerar ideias e conteúdo",
+      icon: MessageSquare,
+      href: "/chat",
+      gradient: "from-purple-500 to-indigo-500",
+      available: true,
+    },
+    {
+      title: "Ideias Criativas",
+      description: "Explore e organize suas ideias de conteúdo",
+      icon: Sparkles,
+      href: "/ideas",
+      gradient: "from-yellow-500 to-orange-500",
+      available: true,
+    },
+  ];
 
   return (
-    <div className="container mx-auto py-6 max-w-6xl">
-      <h1 className="text-3xl font-bold mb-6">Criar Conteúdo</h1>
+    <div className="container mx-auto py-8 space-y-8">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center space-x-4">
+          <Plus className="h-8 w-8 text-blue-600" />
+          <h1 className="text-4xl font-bold">Criar Conteúdo</h1>
+        </div>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Escolha o tipo de conteúdo que deseja criar usando nossa plataforma de IA avançada
+        </p>
+      </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="create">Criar</TabsTrigger>
-          <TabsTrigger value="edit" disabled={!generatedContent}>
-            Editar & Visualizar
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="templates">
-          <Card>
-            <CardHeader>
-              <CardTitle>Biblioteca de Templates</CardTitle>
-              <CardDescription>Escolha um template para começar ou crie seu conteúdo do zero.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContentTemplatesLibrary onSelectTemplate={handleSelectTemplate} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="create">
-          <Card>
-            <CardHeader>
-              <CardTitle>Criar Novo Conteúdo</CardTitle>
-              <CardDescription>Descreva o conteúdo que você deseja criar e personalize as opções.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="content-title">Título do Conteúdo</Label>
-                  <Input
-                    id="content-title"
-                    placeholder="Ex: 3 Estratégias para Aumentar Engajamento"
-                    value={contentTitle}
-                    onChange={(e) => setContentTitle(e.target.value)}
-                  />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {contentTypes.map((type, index) => {
+          const IconComponent = type.icon;
+          
+          return (
+            <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-background to-secondary/20">
+              <CardHeader className="pb-4">
+                <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${type.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <IconComponent className="h-6 w-6 text-white" />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="platform">Plataforma</Label>
-                    <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-                      <SelectTrigger id="platform">
-                        <SelectValue placeholder="Selecione a plataforma" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="instagram">Instagram</SelectItem>
-                        <SelectItem value="facebook">Facebook</SelectItem>
-                        <SelectItem value="twitter">Twitter</SelectItem>
-                        <SelectItem value="linkedin">LinkedIn</SelectItem>
-                        <SelectItem value="youtube">YouTube</SelectItem>
-                        <SelectItem value="tiktok">TikTok</SelectItem>
-                        <SelectItem value="blog">Blog</SelectItem>
-                        <SelectItem value="email">Email</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="style">Estilo</Label>
-                    <Select value={contentStyle} onValueChange={setContentStyle}>
-                      <SelectTrigger id="style">
-                        <SelectValue placeholder="Selecione o estilo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="casual">Casual</SelectItem>
-                        <SelectItem value="professional">Profissional</SelectItem>
-                        <SelectItem value="funny">Divertido</SelectItem>
-                        <SelectItem value="informative">Informativo</SelectItem>
-                        <SelectItem value="persuasive">Persuasivo</SelectItem>
-                        <SelectItem value="storytelling">Storytelling</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content-prompt">Descrição do Conteúdo</Label>
-                  <Textarea
-                    id="content-prompt"
-                    placeholder="Descreva o conteúdo que você deseja criar..."
-                    className="min-h-[150px]"
-                    value={contentPrompt}
-                    onChange={(e) => setContentPrompt(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500">
-                    Seja específico sobre o tópico, tom, objetivo e público-alvo do seu conteúdo.
-                  </p>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button
-                    onClick={handleGenerateContent}
-                    disabled={!contentPrompt.trim() || isGenerating}
-                    className="flex items-center"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                        Gerando...
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="mr-2 h-4 w-4" />
-                        Gerar Conteúdo
-                      </>
-                    )}
+                <CardTitle className="text-xl">{type.title}</CardTitle>
+                <CardDescription className="text-sm">
+                  {type.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {type.available ? (
+                  <Button asChild className="w-full group-hover:scale-105 transition-transform duration-300">
+                    <Link href={type.href}>
+                      Começar
+                      <Plus className="ml-2 h-4 w-4" />
+                    </Link>
                   </Button>
-                </div>
+                ) : (
+                  <Button disabled className="w-full">
+                    Em Breve
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="h-5 w-5 text-blue-600" />
+            <span>Dicas para Criar Conteúdo</span>
+          </CardTitle>
+          <CardDescription>
+            Maximize o potencial das nossas ferramentas de IA
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="space-y-3">
+              <div>
+                <h4 className="font-medium text-blue-800">Para Imagens:</h4>
+                <p className="text-blue-700">Seja específico com descrições visuais, estilos e cores</p>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="edit">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Editar Conteúdo</CardTitle>
-                <CardDescription>Refine seu conteúdo antes de publicar ou agendar.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ContentEditor
-                  initialContent={generatedContent}
-                  platform={selectedPlatform as any}
-                  onSave={handleSaveContent}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Pré-visualização</CardTitle>
-                <CardDescription>Veja como seu conteúdo ficará na plataforma selecionada.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PlatformPreview
-                  content={generatedContent}
-                  platform={selectedPlatform as any}
-                  image="/social-media-post.png"
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-between mt-6">
-            <Button variant="outline" onClick={() => setActiveTab("create")}>
-              Voltar para Edição
-            </Button>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center">
-                <Save className="mr-2 h-4 w-4" />
-                Salvar Rascunho
-              </Button>
-              <Button variant="outline" className="flex items-center">
-                <CalendarPlus className="mr-2 h-4 w-4" />
-                Agendar
-              </Button>
-              <Button className="flex items-center">
-                <Share2 className="mr-2 h-4 w-4" />
-                Publicar Agora
-              </Button>
+              <div>
+                <h4 className="font-medium text-blue-800">Para Vídeos:</h4>
+                <p className="text-blue-700">Descreva a ação, cenário e duração desejada</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <h4 className="font-medium text-blue-800">Para Áudio:</h4>
+                <p className="text-blue-700">Escolha o idioma e forneça uma amostra de voz clara</p>
+              </div>
+              <div>
+                <h4 className="font-medium text-blue-800">Para Ideias:</h4>
+                <p className="text-blue-700">Use o chat para brainstorming e refinamento de conceitos</p>
+              </div>
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Galeria de Criações</CardTitle>
+          <CardDescription>
+            Veja todos os seus conteúdos criados em um só lugar
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild className="w-full md:w-auto">
+            <Link href="/gallery">
+              Ver Galeria
+              <Image className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
-  )
-}
+  );
+} 

@@ -18,7 +18,7 @@ interface IdeaScheduleModalProps {
 }
 
 export function IdeaScheduleModal({ isOpen, onClose, onSchedule, idea }: IdeaScheduleModalProps) {
-  const [date, setDate] = useState<Date | null>(idea.scheduled_date ? parseISO(idea.scheduled_date) : null)
+  const [date, setDate] = useState<Date | null>(null)
 
   const handleSchedule = () => {
     onSchedule(date)
@@ -58,7 +58,12 @@ export function IdeaScheduleModal({ isOpen, onClose, onSchedule, idea }: IdeaSch
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
-                <Calendar mode="single" selected={date || undefined} onSelect={setDate} initialFocus />
+                <Calendar 
+                  mode="single" 
+                  selected={date || undefined} 
+                  onSelect={(selectedDate) => setDate(selectedDate || null)} 
+                  initialFocus 
+                />
               </PopoverContent>
             </Popover>
 

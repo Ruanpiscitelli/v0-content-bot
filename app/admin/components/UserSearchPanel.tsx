@@ -112,7 +112,13 @@ export function UserSearchPanel() {
 
       if (error) throw error
 
-      setUsers(data || [])
+      setUsers((data || []).map(user => ({
+        ...user,
+        has_subscription: null,
+        created_at: user.created_at ?? '',
+        updated_at: user.updated_at ?? '',
+        id: user.id ?? '',
+      })))
       setTotalCount(count || 0)
     } catch (error) {
       console.error('Erro ao buscar usuários:', error)

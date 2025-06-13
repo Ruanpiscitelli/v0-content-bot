@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { CustomButton } from "../ui/custom-button"
-import { Sparkles, Rocket, X } from "lucide-react"
+import { Menu, X, Rocket } from "lucide-react"
+import { Button } from "../ui/button"
 
 interface MobileMenuProps {
   onClose: () => void
@@ -62,20 +62,20 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
         {/* CTA buttons */}
         <div className="mt-8 flex flex-col gap-6 w-full max-w-sm">
           <Link href="/login" onClick={onClose} className="w-full">
-            <CustomButton 
+            <Button 
               variant="outline" 
               className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 font-bold text-lg py-4 drop-shadow-lg"
             >
               Login
-            </CustomButton>
+            </Button>
           </Link>
           <Link href="/signup" onClick={onClose} className="w-full">
-            <CustomButton 
-              variant="primary" 
+            <Button 
+              variant="default" 
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold border border-blue-400/50 shadow-xl text-lg py-4 transition-all duration-300"
             >
               Sign Up Free
-            </CustomButton>
+            </Button>
           </Link>
         </div>
       </div>

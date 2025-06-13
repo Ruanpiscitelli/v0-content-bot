@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { Message } from "@/lib/types"
@@ -30,7 +30,7 @@ export default function MessageBubble({ message, userId }: MessageBubbleProps) {
   const isUser = message.sender === "user"
   const formattedTime = formatDistanceToNow(new Date(message.timestamp), {
     addSuffix: true,
-    locale: ptBR,
+    locale: enUS,
   })
 
   const { createIdea } = useIdeas(userId)
@@ -56,14 +56,15 @@ export default function MessageBubble({ message, userId }: MessageBubbleProps) {
 
     setIsSaving(true)
 
-    const newIdeaData: NewIdea = {
-      title: message.content?.substring(0, 70) + (message.content && message.content.length > 70 ? "..." : ""),
-      idea_text: message.content || "",
-      tags: ["chat", "chatbot-suggestion"],
+    const idea = {
+      title: message.content.substring(0, 50) + "...",
+      description: message.content || "",
+      tags: [],
       status: "draft",
+      category: null,
     }
 
-    const result = await createIdea(newIdeaData)
+    const result = await createIdea(idea)
 
     if (result.success) {
       setIsSuccessfullySaved(true)
@@ -145,7 +146,8 @@ export default function MessageBubble({ message, userId }: MessageBubbleProps) {
 
         {message.audioUrl && message.audioType && (
           <div className="mb-3">
-            <audio controls src={message.audioUrl} type={message.audioType} className="w-full max-w-xs rounded-lg bg-gray-800">
+            <audio controls className="w-full max-w-xs rounded-lg bg-gray-800">
+              <source src={message.audioUrl} type={message.audioType} />
               Your browser does not support the audio element.
             </audio>
           </div>
@@ -173,11 +175,15 @@ export default function MessageBubble({ message, userId }: MessageBubbleProps) {
                 h1: ({ node, ...props }) => <h1 {...props} className="text-xl font-bold mb-3 text-gray-900" />,
                 h2: ({ node, ...props }) => <h2 {...props} className="text-lg font-bold mb-2 text-gray-900" />,
                 h3: ({ node, ...props }) => <h3 {...props} className="text-md font-bold mb-2 text-gray-900" />,
-                code: ({ node, inline, ...props }) =>
+                code: ({ node, inline, className, children, ...props }: any) =>
                   inline ? (
-                    <code {...props} className={`px-2 py-1 rounded-md text-sm ${isUser ? "bg-cyan-400/30 text-cyan-100" : "bg-gray-100 text-gray-800"}`} />
+                    <code {...props} className={`px-2 py-1 rounded-md text-sm ${isUser ? "bg-cyan-400/30 text-cyan-100" : "bg-gray-100 text-gray-800"}`}>
+                      {children}
+                    </code>
                   ) : (
-                    <code {...props} className={`block p-3 rounded-lg my-3 text-sm ${isUser ? "bg-cyan-400/30 text-cyan-100" : "bg-gray-100 text-gray-800 border border-gray-200"}`} />
+                    <code {...props} className={`block p-3 rounded-lg my-3 text-sm ${isUser ? "bg-cyan-400/30 text-cyan-100" : "bg-gray-100 text-gray-800 border border-gray-200"}`}>
+                      {children}
+                    </code>
                   ),
                 pre: ({ node, ...props }) => (
                   <pre {...props} className="overflow-auto p-4 rounded-lg my-3 bg-gray-100 text-gray-800 border border-gray-200" />
@@ -211,7 +217,7 @@ export default function MessageBubble({ message, userId }: MessageBubbleProps) {
                 variant="ghost"
                 className="h-9 w-9 rounded-full text-cyan-300 hover:text-cyan-200 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-purple-500/20 transition-all duration-300 border border-cyan-400/30 hover:border-cyan-400/50 shadow-lg shadow-cyan-500/20"
                 onClick={handleCopy}
-                title="Copiar conteúdo"
+                title="Copy content"
               >
                 {isCopied ? <Check className="h-5 w-5 text-green-400" /> : <Copy className="h-5 w-5" />}
                 <span className="sr-only">Copy</span>
@@ -224,7 +230,7 @@ export default function MessageBubble({ message, userId }: MessageBubbleProps) {
                 className="h-9 w-9 rounded-full text-purple-300 hover:text-purple-200 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-pink-500/20 disabled:opacity-50 transition-all duration-300 border border-purple-400/30 hover:border-purple-400/50 shadow-lg shadow-purple-500/20"
                 onClick={handleSaveToIdeas}
                 disabled={isSaving || isSuccessfullySaved}
-                title="Salvar nas ideias"
+                title="Save to ideas"
               >
                 {isSuccessfullySaved ? (
                   <BookmarkCheck className="h-5 w-5 text-purple-400" />

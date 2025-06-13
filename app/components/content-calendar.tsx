@@ -393,9 +393,12 @@ const DraggableEvent = ({
     [event, onEventDrop],
   )
 
+  const ref = useRef<HTMLDivElement>(null);
+  drag(ref);
+
   return (
     <div
-      ref={drag}
+      ref={ref}
       className={`${isDragging ? "opacity-50" : "opacity-100"} cursor-grab active:cursor-grabbing`}
       style={{ transform: "translate(0, 0)" }} // Necessário para o React DnD
     >
@@ -417,8 +420,11 @@ const DroppableCell = ({ date, children }: { date: Date; children: React.ReactNo
     [date],
   )
 
+  const ref = useRef<HTMLDivElement>(null);
+  drop(ref);
+
   return (
-    <div ref={drop} className={`${isOver ? "bg-blue-100" : ""} h-full`}>
+    <div ref={ref} className={`${isOver ? "bg-blue-100" : ""} h-full`}>
       {children}
     </div>
   )
@@ -443,8 +449,11 @@ const DroppableTimeSlot = ({
     [slot],
   )
 
+  const ref = useRef<HTMLDivElement>(null);
+  drop(ref);
+
   return (
-    <div ref={drop} className={`${isOver ? "bg-blue-100" : ""} h-full`}>
+    <div ref={ref} className={`${isOver ? "bg-blue-100" : ""} h-full`}>
       {children}
     </div>
   )
@@ -904,6 +913,8 @@ export default function ContentCalendar() {
             start: new Date(newStart),
             end: new Date(newEnd),
             title: `${baseEvent.title} (${i + 1})`, // Adicionar número da ocorrência ao título
+            platform: baseEvent.platform || 'Instagram', // Valor padrão se undefined
+            status: baseEvent.status || 'Rascunho', // Valor padrão se undefined
           }
 
           recurringEvents.push(recurringEvent)

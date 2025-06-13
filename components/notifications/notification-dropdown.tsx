@@ -5,7 +5,7 @@ import { Bell, X, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { trackEvent } from "@/lib/analytics"
 import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 
 // Types for our notifications
 export interface Notification {
@@ -27,40 +27,40 @@ export default function NotificationDropdown({ isCollapsed }: NotificationDropdo
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
-      title: "Nova mensagem",
-      message: "Você recebeu uma nova mensagem de @mariafernanda",
+      title: "New message",
+      message: "You received a new message from @mariafernanda",
       timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
       read: false,
       type: "message",
     },
     {
       id: "2",
-      title: "Novo seguidor",
-      message: "@carlos_silva começou a seguir você",
+      title: "New follower",
+      message: "@carlos_silva started following you",
       timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
       read: false,
       type: "follow",
     },
     {
       id: "3",
-      title: "Menção em comentário",
-      message: "@juliana_costa mencionou você em um comentário",
+      title: "Comment mention",
+      message: "@juliana_costa mentioned you in a comment",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
       read: true,
       type: "mention",
     },
     {
       id: "4",
-      title: "Curtida em seu post",
-      message: "@roberto_almeida curtiu seu post recente",
+      title: "Post liked",
+      message: "@roberto_almeida liked your recent post",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
       read: true,
       type: "like",
     },
     {
       id: "5",
-      title: "Atualização do sistema",
-      message: "Novos recursos foram adicionados à plataforma",
+      title: "System update",
+      message: "New features have been added to the platform",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
       read: true,
       type: "system",
@@ -266,7 +266,7 @@ export default function NotificationDropdown({ isCollapsed }: NotificationDropdo
             {unreadCount}
           </span>
         )}
-        {!isCollapsed && <span className="ml-3">Notificações</span>}
+        {!isCollapsed && <span className="ml-3">Notifications</span>}
       </button>
 
       {isOpen && (
@@ -286,11 +286,11 @@ export default function NotificationDropdown({ isCollapsed }: NotificationDropdo
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h3 className="font-medium text-cyan-300">Notificações</h3>
+            <h3 className="font-medium text-cyan-300">Notifications</h3>
             {unreadCount > 0 && (
               <button onClick={markAllAsRead} className="text-xs text-cyan-400 hover:text-cyan-300 hover:underline flex items-center transition-colors duration-300">
                 <Check className="w-3 h-3 mr-1" />
-                Marcar todas como lidas
+                Mark all as read
               </button>
             )}
           </div>
@@ -298,7 +298,7 @@ export default function NotificationDropdown({ isCollapsed }: NotificationDropdo
           {/* Notification List */}
           <div className="overflow-y-auto flex-1">
             {notifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-400">Nenhuma notificação</div>
+              <div className="p-4 text-center text-gray-400">No notifications</div>
             ) : (
               notifications.map((notification) => (
                 <div
@@ -314,7 +314,7 @@ export default function NotificationDropdown({ isCollapsed }: NotificationDropdo
                     <div className="flex justify-between items-start">
                       <p className="font-medium text-sm text-white">{notification.title}</p>
                       <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
-                        {formatDistanceToNow(notification.timestamp, { addSuffix: true, locale: ptBR })}
+                        {formatDistanceToNow(notification.timestamp, { addSuffix: true, locale: enUS })}
                       </span>
                     </div>
                     <p className="text-sm text-gray-300 mt-0.5 line-clamp-2">{notification.message}</p>
@@ -340,7 +340,7 @@ export default function NotificationDropdown({ isCollapsed }: NotificationDropdo
               className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline transition-colors duration-300"
               onClick={() => trackEvent("notification_action", { action: "view_all" })}
             >
-              Ver todas as notificações
+              View all notifications
             </a>
           </div>
         </div>

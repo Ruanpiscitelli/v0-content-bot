@@ -75,7 +75,7 @@ export default function ChatInterface({ userId }: { userId: string }) {
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error("Device data collection timeout")), 3000); // 3s timeout
         });
-        deviceDataResult = await Promise.race([deviceDataPromise, timeoutPromise]);
+        deviceDataResult = await Promise.race([deviceDataPromise, timeoutPromise]) as Record<string, any>;
       } catch (error) {
         console.warn("Device data collection failed or timed out:", error);
         // Minimal fallback for deviceData
@@ -157,7 +157,7 @@ export default function ChatInterface({ userId }: { userId: string }) {
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error("Device data collection timeout")), 3000);
       });
-      deviceDataResult = await Promise.race([deviceDataPromise, timeoutPromise]);
+      deviceDataResult = await Promise.race([deviceDataPromise, timeoutPromise]) as Record<string, any>;
     } catch (error) {
       console.warn("Device data collection for image failed or timed out:", error);
       deviceDataResult = { // Fallback
@@ -311,7 +311,7 @@ export default function ChatInterface({ userId }: { userId: string }) {
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-400/10 to-purple-500/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
       
-      <ChatHeader title="Assistente de Criação de Conteúdo" />
+      <ChatHeader />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Chat Area */}

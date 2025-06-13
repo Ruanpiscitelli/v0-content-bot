@@ -6,7 +6,10 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
-import { ArrowRight, Mail, Lock, User, Phone, Eye, EyeOff, Check, X } from "lucide-react"
+import { ArrowRight, Mail, Lock, User, Phone, Eye, EyeOff, Check, X, Rocket } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 // Function to calculate password strength
 const calculatePasswordStrength = (
@@ -40,7 +43,7 @@ const calculatePasswordStrength = (
 
   if (score === 0) {
     feedback = "Enter your password"
-    color = "bg-gray-200"
+    color = "bg-gray-400"
   } else if (score === 1) {
     feedback = "Very weak"
     color = "bg-red-500"
@@ -75,7 +78,7 @@ export default function SignUp() {
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
     feedback: "Enter your password",
-    color: "bg-gray-200",
+    color: "bg-gray-400",
     requirements: [] as { met: boolean; text: string }[],
   })
   const [showRequirements, setShowRequirements] = useState(false)
@@ -90,7 +93,7 @@ export default function SignUp() {
       setPasswordStrength({
         score: 0,
         feedback: "Enter your password",
-        color: "bg-gray-200",
+        color: "bg-gray-400",
         requirements: [],
       })
     }
@@ -151,266 +154,181 @@ export default function SignUp() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-white to-[#5281EE]/10 px-4 py-12 sm:px-6 lg:px-8">
-      {/* Decorative elements */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-20 top-20 h-72 w-72 rounded-full bg-[#5281EE]/20 blur-3xl"></div>
-        <div className="absolute -right-20 bottom-20 h-72 w-72 rounded-full bg-[#5281EE]/30 blur-3xl"></div>
-      </div>
-
-      <div className="relative w-full max-w-md transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
-        <div className="overflow-hidden rounded-2xl bg-white/80 shadow-xl backdrop-blur-sm">
-          {/* Card header */}
-          <div className="bg-gradient-to-r from-[#5281EE] to-[#5281EE]/80 px-6 py-8 text-white">
-            <h1 className="text-center text-3xl font-bold tracking-tight">
-              Join{" "}
-              <span className="bg-gradient-to-r from-white to-white/90 bg-clip-text text-transparent">Virallyzer</span>
-            </h1>
-            <p className="mt-2 text-center text-sm text-white/80">
-              Create your account and supercharge your content creation
-            </p>
-          </div>
-
-          {/* Card body */}
-          <div className="p-6">
-            {error && (
-              <div className="mb-6 rounded-lg bg-red-50 p-4 text-sm text-red-700">
-                <div className="flex">
-                  <div>{error}</div>
-                </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block">
+            <div className="relative w-16 h-16 mx-auto mb-4">
+              <div className="w-full h-full bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
+                <Rocket className="w-8 h-8 text-white" />
               </div>
-            )}
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50"></div>
+            </div>
+          </Link>
+          <h1 className="text-3xl font-black text-white mb-2">Create Account</h1>
+          <p className="text-gray-300">Join us and start creating amazing content</p>
+        </div>
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="fullName"
-                      name="fullName"
-                      type="text"
-                      autoComplete="name"
-                      required
-                      className="block w-full rounded-lg border border-gray-300 bg-white/70 px-4 py-3 pl-10 text-gray-900 placeholder:text-gray-400 focus:border-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/30 sm:text-sm"
-                      placeholder="John Smith"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                    />
-                  </div>
-                </div>
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+              <div className="text-red-200 text-sm">{error}</div>
+            </div>
+          )}
 
-                <div>
-                  <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <Phone className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      autoComplete="tel"
-                      required
-                      className="block w-full rounded-lg border border-gray-300 bg-white/70 px-4 py-3 pl-10 text-gray-900 placeholder:text-gray-400 focus:border-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/30 sm:text-sm"
-                      placeholder="+1 (555) 123-4567"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                  </div>
-                </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="fullName" className="text-white">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder-gray-400"
+                placeholder="Enter your full name"
+                required
+              />
+            </div>
 
-                <div>
-                  <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      className="block w-full rounded-lg border border-gray-300 bg-white/70 px-4 py-3 pl-10 text-gray-900 placeholder:text-gray-400 focus:border-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/30 sm:text-sm"
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
+            <div>
+              <Label htmlFor="email" className="text-white">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder-gray-400"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
 
-                <div>
-                  <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="new-password"
-                      required
-                      minLength={6}
-                      className="block w-full rounded-lg border border-gray-300 bg-white/70 px-4 py-3 pl-10 pr-10 text-gray-900 placeholder:text-gray-400 focus:border-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/30 sm:text-sm"
-                      placeholder="Minimum 6 characters"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onFocus={() => setShowRequirements(true)}
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
+            <div>
+              <Label htmlFor="phone" className="text-white">Phone (Optional)</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder-gray-400"
+                placeholder="Enter your phone number"
+              />
+            </div>
 
-                  {/* Password strength indicator */}
-                  {password && (
-                    <div className="mt-2">
-                      <div className="mb-1 flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-700">
-                          Password strength: {passwordStrength.feedback}
-                        </span>
-                      </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className={`h-full transition-all duration-300 ${passwordStrength.color}`}
-                          style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Password requirements list */}
-                  {showRequirements && (
-                    <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
-                      <p className="mb-2 text-xs font-medium text-gray-700">For a strong password, include:</p>
-                      <ul className="space-y-1">
-                        {passwordStrength.requirements.map((req, index) => (
-                          <li key={index} className="flex items-center text-xs">
-                            {req.met ? (
-                              <Check className="mr-1.5 h-3.5 w-3.5 text-green-500" />
-                            ) : (
-                              <X className="mr-1.5 h-3.5 w-3.5 text-gray-400" />
-                            )}
-                            <span className={req.met ? "text-gray-700" : "text-gray-500"}>{req.text}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-gray-700">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      autoComplete="new-password"
-                      required
-                      minLength={6}
-                      className={`block w-full rounded-lg border ${
-                        !passwordsMatch && confirmPassword ? "border-red-500" : "border-gray-300"
-                      } bg-white/70 px-4 py-3 pl-10 pr-10 text-gray-900 placeholder:text-gray-400 focus:border-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/30 sm:text-sm`}
-                      placeholder="Type password again"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                  {!passwordsMatch && confirmPassword && (
-                    <p className="mt-1 text-xs text-red-500">Passwords don't match</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
+            <div>
+              <Label htmlFor="password" className="text-white">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setShowRequirements(true)}
+                  onBlur={() => setShowRequirements(false)}
+                  className="bg-white/10 border-white/20 text-white placeholder-gray-400 pr-10"
+                  placeholder="Enter your password"
+                  required
+                />
                 <button
-                  type="submit"
-                  disabled={loading || !passwordsMatch}
-                  className="group relative flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-[#5281EE] to-[#5281EE]/90 px-4 py-3 text-sm font-semibold text-white transition-all hover:from-[#5281EE]/90 hover:to-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/50 focus:ring-offset-2 disabled:opacity-70"
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  onClick={() => setShowPassword(!showPassword)}
                 >
-                  {loading ? (
-                    <svg
-                      className="h-5 w-5 animate-spin text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
                   ) : (
-                    <>
-                      Create account
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                    </>
+                    <Eye className="h-5 w-5 text-gray-400" />
                   )}
                 </button>
               </div>
-            </form>
-          </div>
 
-          {/* Card footer */}
-          <div className="border-t border-gray-200 bg-gray-50/80 px-6 py-4">
-            <p className="text-center text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link href="/login" className="font-medium text-[#5281EE] hover:text-[#5281EE]/80">
-                Sign in
-              </Link>
-            </p>
+              {/* Password strength indicator */}
+              {password && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-300">Password strength:</span>
+                    <span className="text-xs text-gray-300">{passwordStrength.feedback}</span>
+                  </div>
+                  <div className="w-full bg-gray-600 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Password requirements */}
+              {showRequirements && password && (
+                <div className="mt-2 p-3 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xs text-gray-300 mb-2">Password requirements:</p>
+                  <div className="space-y-1">
+                    {passwordStrength.requirements.map((req, index) => (
+                      <div key={index} className="flex items-center text-xs">
+                        {req.met ? (
+                          <Check className="h-3 w-3 text-green-400 mr-2" />
+                        ) : (
+                          <X className="h-3 w-3 text-gray-400 mr-2" />
+                        )}
+                        <span className={req.met ? "text-green-400" : "text-gray-400"}>
+                          {req.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="confirmPassword" className="text-white">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`bg-white/10 border-white/20 text-white placeholder-gray-400 pr-10 ${
+                    confirmPassword && !passwordsMatch ? "border-red-500" : ""
+                  }`}
+                  placeholder="Confirm your password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
+              {confirmPassword && !passwordsMatch && (
+                <p className="mt-1 text-xs text-red-400">Passwords don't match</p>
+              )}
+            </div>
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold py-2"
+                disabled={loading || !passwordsMatch}
+              >
+                {loading ? "Creating Account..." : "Create Account"}
+              </Button>
+            </div>
+          </form>
+
+          <div className="mt-6 text-center text-sm">
+            <span className="text-gray-300">Already have an account? </span>
+            <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
+              Sign in
+            </Link>
           </div>
         </div>
-
-        <p className="mt-4 text-center text-xs text-gray-500">
-          By signing up, you agree to our{" "}
-          <a href="#" className="text-[#5281EE] hover:text-[#5281EE]/80">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-[#5281EE] hover:text-[#5281EE]/80">
-            Privacy Policy
-          </a>
-        </p>
       </div>
     </div>
   )

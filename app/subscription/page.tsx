@@ -23,7 +23,7 @@ export default function SubscriptionPage() {
       // In a real app, this would connect to a payment processor
       // For this demo, we'll just update the subscription status directly
 
-      const { error } = await supabase.from("profiles").update({ has_subscription: true }).eq("id", user.id)
+      const { error } = await supabase.from("profiles").update({ has_subscription: true } as any).eq("id", user.id)
 
       if (error) throw error
 
@@ -47,7 +47,7 @@ export default function SubscriptionPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.from("profiles").update({ has_subscription: false }).eq("id", user.id)
+      const { error } = await supabase.from("profiles").update({ has_subscription: false } as any).eq("id", user.id)
 
       if (error) throw error
 

@@ -79,6 +79,7 @@ module.exports = {
         'float': 'float 6s ease-in-out infinite',
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
         'rocket-launch': 'rocket-launch 4s ease-in-out infinite',
+        'shimmer': 'shimmer 2s ease-in-out infinite',
       },
       keyframes: {
         'slow-spin': {
@@ -119,6 +120,10 @@ module.exports = {
           '50%': { transform: 'translateY(-3px) rotate(0.5deg)' },
           '75%': { transform: 'translateY(-2px) rotate(-0.3deg)' },
           '100%': { transform: 'translateY(0px) rotate(0deg)' },
+        },
+        'shimmer': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       backgroundImage: {

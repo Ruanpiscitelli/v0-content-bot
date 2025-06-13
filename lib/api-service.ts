@@ -84,7 +84,7 @@ export async function sendMessage(text: string) {
     } catch (error) {
       clearTimeout(timeoutId) // Clear the timeout
 
-      if (error.name === "AbortError") {
+      if (error instanceof Error && error.name === "AbortError") {
         console.error("Request timed out after 10 seconds")
         throw new Error("Request timed out. Please try again.")
       }
@@ -174,7 +174,7 @@ export async function sendImage(file: File) {
     } catch (error) {
       clearTimeout(timeoutId) // Clear the timeout
 
-      if (error.name === "AbortError") {
+      if (error instanceof Error && error.name === "AbortError") {
         console.error("Image upload request timed out")
         throw new Error("Image upload timed out. Please try again with a smaller image.")
       }
@@ -264,7 +264,7 @@ export async function sendAudio(audioBlob: Blob) {
     } catch (error) {
       clearTimeout(timeoutId) // Clear the timeout
 
-      if (error.name === "AbortError") {
+      if (error instanceof Error && error.name === "AbortError") {
         console.error("Audio upload request timed out")
         throw new Error("Audio upload timed out. Please try again.")
       }

@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from "react"
 import { getSupabase } from "@/lib/supabase"
-// import { useToast } from "@/components/ui/use-toast" // Comentado
+import { toast } from "sonner"
 import { v4 as uuidv4 } from "uuid"
 
 export type Idea = {
   id: string
   user_id: string
   title: string
-  idea_text: string
-  status: string
+  description: string | null
+  category: string | null
+  status: string | null
   tags?: string[]
-  created_at: string
-  updated_at: string
-  scheduled_date?: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export type NewIdea = Omit<Idea, "id" | "user_id" | "created_at" | "updated_at">
@@ -23,7 +23,6 @@ export function useIdeas(userId: string | undefined) {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  // const { toast } = useToast() // Comentado
   const supabase = getSupabase()
 
   useEffect(() => {
@@ -55,7 +54,6 @@ export function useIdeas(userId: string | undefined) {
             // Convert dates to Date objects for easier handling
             created_at: idea.created_at,
             updated_at: idea.updated_at,
-            scheduled_date: idea.scheduled_date,
           }
         })
 
@@ -63,11 +61,6 @@ export function useIdeas(userId: string | undefined) {
       } catch (err) {
         console.error("Error fetching ideas:", err)
         setError(err instanceof Error ? err : new Error("Failed to fetch ideas"))
-        // toast({ // Comentado
-        //   title: "Error fetching ideas",
-        //   description: "There was a problem loading your ideas.",
-        //   variant: "destructive",
-        // })
       } finally {
         setLoading(false)
       }
@@ -128,7 +121,7 @@ export function useIdeas(userId: string | undefined) {
         }
       }
     }
-  }, [userId, /* toast, */ supabase]) // toast removido das dependências do useEffect
+  }, [userId, supabase])
 
   // Helper function to fetch a single idea with its tags
   const fetchIdeaWithTags = async (ideaId: string): Promise<Idea | null> => {
@@ -148,11 +141,9 @@ export function useIdeas(userId: string | undefined) {
       // Return the formatted idea
       return {
         ...data,
-        idea_text: data.idea_text,
         tags: data.tags || [],
         created_at: data.created_at,
         updated_at: data.updated_at,
-        scheduled_date: data.scheduled_date,
       }
     } catch (err) {
       console.error("Error fetching idea with tags:", err)
@@ -171,10 +162,9 @@ export function useIdeas(userId: string | undefined) {
         id: ideaId,
         user_id: userId,
         title: newIdea.title,
-        idea_text: newIdea.idea_text,
+        description: newIdea.description,
         status: newIdea.status || "draft",
         tags: newIdea.tags || [],
-        scheduled_date: newIdea.scheduled_date,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -187,19 +177,12 @@ export function useIdeas(userId: string | undefined) {
 
       const completeIdea = await fetchIdeaWithTags(ideaId)
 
-      // toast({ // Comentado
-      //   title: "Idea created",
-      //   description: "Your idea has been created successfully.",
-      // })
+      toast.success("Idea created")
 
       return { success: true, data: completeIdea }
     } catch (err) {
       console.error("Error creating idea:", err)
-      // toast({ // Comentado
-      //   title: "Error creating idea",
-      //   description: "There was a problem creating your idea.",
-      //   variant: "destructive",
-      // })
+      toast.error("Error creating idea")
       return {
         success: false,
         error: err instanceof Error ? err : new Error("Failed to create idea"),
@@ -213,10 +196,10 @@ export function useIdeas(userId: string | undefined) {
       return { success: false, error: new Error("User not authenticated or Supabase not initialized") }
 
     try {
-      // Ensure that if idea_text is part of updates, it's correctly structured
+      // Ensure that if description is part of updates, it's correctly structured
       const updatesToApply: { [key: string]: any } = { ...updates };
-      if ('idea_text' in updates) {
-        updatesToApply.idea_text = updates.idea_text;
+      if ('description' in updates) {
+        updatesToApply.description = updates.description;
       }
       updatesToApply.updated_at = new Date().toISOString();
 
@@ -238,19 +221,12 @@ export function useIdeas(userId: string | undefined) {
       // Fetch the complete idea with tags
       const completeIdea = await fetchIdeaWithTags(id)
 
-      // toast({ // Comentado
-      //   title: "Idea updated",
-      //   description: "Your idea has been updated successfully.",
-      // })
+      toast.success("Idea updated")
 
       return { success: true, data: completeIdea }
     } catch (err) {
       console.error("Error updating idea:", err)
-      // toast({ // Comentado
-      //   title: "Error updating idea",
-      //   description: "There was a problem updating your idea.",
-      //   variant: "destructive",
-      // })
+      toast.error("Error updating idea")
       return {
         success: false,
         error: err instanceof Error ? err : new Error("Failed to update idea"),
@@ -271,19 +247,12 @@ export function useIdeas(userId: string | undefined) {
         throw error
       }
 
-      // toast({ // Comentado
-      //   title: "Idea deleted",
-      //   description: "Your idea has been deleted successfully.",
-      // })
+      toast.success("Idea deleted")
 
       return { success: true }
     } catch (err) {
       console.error("Error deleting idea:", err)
-      // toast({ // Comentado
-      //   title: "Error deleting idea",
-      //   description: "There was a problem deleting your idea.",
-      //   variant: "destructive",
-      // })
+      toast.error("Error deleting idea")
       return {
         success: false,
         error: err instanceof Error ? err : new Error("Failed to delete idea"),
@@ -293,7 +262,7 @@ export function useIdeas(userId: string | undefined) {
 
   // Helper function to handle idea tags
   const handleIdeaTags = async (ideaId: string, tags: string[]) => {
-    if (!supabase) return
+    if (!supabase || !userId) return
 
     try {
       // Update the idea directly with the tags array
@@ -319,7 +288,6 @@ export function useIdeas(userId: string | undefined) {
   const scheduleIdea = async (id: string, date: Date | null) => {
     console.log("[scheduleIdea] Scheduling idea ID:", id, "to date:", date ? date.toISOString() : null);
     return updateIdea(id, {
-      scheduled_date: date ? date.toISOString() : null,
       status: date ? "scheduled" : "draft",
     })
   }

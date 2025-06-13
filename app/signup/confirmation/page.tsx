@@ -1,90 +1,154 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Mail, ArrowRight } from "lucide-react"
+import { Rocket, Mail, RefreshCw, CheckCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { toast } from "sonner"
 
-export default function SignupConfirmation() {
+function SignupConfirmationContent() {
+  const [email, setEmail] = useState("")
+  const [isResending, setIsResending] = useState(false)
   const searchParams = useSearchParams()
-  const email = searchParams.get("email") || ""
+  const supabase = createClientComponentClient()
 
-  // Scroll to top on component mount
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
+    const emailParam = searchParams.get("email")
+    if (emailParam) {
+      setEmail(emailParam)
+    }
+  }, [searchParams])
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error("Email not found. Please try signing up again.")
+      return
+    }
+
+    setIsResending(true)
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      })
+
+      if (error) {
+        throw error
+      }
+
+      toast.success("Confirmation email sent again!")
+    } catch (error: any) {
+      console.error('Error resending confirmation:', error)
+      toast.error(error.message || "Failed to resend confirmation email")
+    } finally {
+      setIsResending(false)
+    }
+  }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-white to-[#5281EE]/10 px-4 py-12 sm:px-6 lg:px-8">
-      {/* Decorative elements */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-20 top-20 h-72 w-72 rounded-full bg-[#5281EE]/20 blur-3xl"></div>
-        <div className="absolute -right-20 bottom-20 h-72 w-72 rounded-full bg-[#5281EE]/30 blur-3xl"></div>
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="overflow-hidden rounded-2xl bg-white/80 shadow-xl backdrop-blur-sm">
-          <div className="bg-gradient-to-r from-[#5281EE] to-[#5281EE]/80 px-6 py-8 text-white">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-              <Mail className="h-8 w-8 text-white" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block">
+            <div className="relative w-16 h-16 mx-auto mb-4">
+              <div className="w-full h-full bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
+                <Rocket className="w-8 h-8 text-white" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50"></div>
             </div>
-            <h1 className="mt-4 text-center text-2xl font-bold tracking-tight">Check your email</h1>
-            <p className="mt-2 text-center text-sm text-white/80">
-              We've sent a confirmation link to your email address
-            </p>
-          </div>
+          </Link>
+          <h1 className="text-3xl font-black text-white mb-2">Check Your Email</h1>
+          <p className="text-gray-300">We've sent you a confirmation link</p>
+        </div>
 
-          <div className="p-6">
-            <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
+          <div className="text-center">
+            <div className="mx-auto mb-6 w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+              <Mail className="w-8 h-8 text-green-400" />
+            </div>
+
+            <h2 className="text-xl font-bold text-white mb-4">
+              Almost there!
+            </h2>
+            
+            <div className="space-y-4 text-gray-300">
               <p>
-                We've sent a confirmation email to: <span className="font-medium">{email || "your email address"}</span>
+                We sent a confirmation email to:
+              </p>
+              <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                <p className="font-mono text-cyan-400 break-all">
+                  {email || "your email address"}
+                </p>
+              </div>
+              
+              <p className="text-sm">
+                Click the link in the email to activate your account and start creating amazing content!
               </p>
             </div>
 
-            <div className="mt-6 space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-lg font-medium text-gray-900">Next steps:</h2>
-                <ol className="ml-5 list-decimal space-y-2 text-sm text-gray-600">
-                  <li>Check your email inbox for the confirmation message</li>
-                  <li>Click on the confirmation link in the email</li>
-                  <li>Once confirmed, you can log in to your account</li>
-                </ol>
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-400">
+                <CheckCircle className="w-4 h-4" />
+                <span>Check your inbox and spam folder</span>
               </div>
-
-              <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
-                <p>
-                  <strong>Didn't receive the email?</strong> Check your spam folder or click the button below to resend
-                  the confirmation email.
+              
+              <div className="border-t border-white/10 pt-4">
+                <p className="text-sm text-gray-400 mb-3">
+                  Didn't receive the email?
                 </p>
-              </div>
-
-              <div className="flex flex-col space-y-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#5281EE]/50 focus:ring-offset-2"
+                <Button
+                  onClick={handleResendConfirmation}
+                  disabled={isResending || !email}
+                  variant="outline"
+                  className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10"
                 >
-                  Resend confirmation email
-                </button>
-
-                <Link
-                  href="/login"
-                  className="group inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#5281EE] to-[#5281EE]/90 px-4 py-2.5 text-sm font-medium text-white hover:from-[#5281EE]/90 hover:to-[#5281EE] focus:outline-none focus:ring-2 focus:ring-[#5281EE]/50 focus:ring-offset-2"
-                >
-                  Go to login
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                </Link>
+                  {isResending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Resend confirmation email
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
-        </div>
 
-        <p className="mt-4 text-center text-xs text-gray-500">
-          Need help?{" "}
-          <a href="#" className="text-[#5281EE] hover:text-[#5281EE]/80">
-            Contact our support team
-          </a>
-        </p>
+          <div className="mt-6 text-center text-sm border-t border-white/10 pt-4">
+            <span className="text-gray-300">Want to try a different email? </span>
+            <Link href="/signup" className="text-cyan-400 hover:text-cyan-300 font-medium">
+              Sign up again
+            </Link>
+          </div>
+
+          <div className="mt-3 text-center text-sm">
+            <Link href="/login" className="text-cyan-400 hover:text-cyan-300">
+              Back to Login
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <SignupConfirmationContent />
+    </Suspense>
   )
 }

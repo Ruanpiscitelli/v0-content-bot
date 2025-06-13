@@ -4,8 +4,8 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import type { Database } from "@/types/supabase"
 
-function createSupabaseClient() {
-  const cookieStore = cookies();
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   try {
     const { full_name, username } = await request.json()
 
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
 
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
 
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()

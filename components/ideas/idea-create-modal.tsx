@@ -25,18 +25,18 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
   const [ideaText, setIdeaText] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
-  const [errors, setErrors] = useState<{ title?: string; idea_text?: string }>({})
+  const [errors, setErrors] = useState<{ title?: string; description?: string }>({})
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write")
 
   const handleSubmit = () => {
-    const newErrors: { title?: string; idea_text?: string } = {}
+    const newErrors: { title?: string; description?: string } = {}
 
     if (!title.trim()) {
       newErrors.title = "Title is required"
     }
 
     if (!ideaText.trim()) {
-      newErrors.idea_text = "Description is required"
+      newErrors.description = "Description is required"
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -46,8 +46,9 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
 
     onSave({
       title: title.trim(),
-      idea_text: ideaText.trim(),
+      description: ideaText.trim(),
       tags: tags.length > 0 ? tags : undefined,
+      category: null,
     })
 
     resetForm()
@@ -119,7 +120,7 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description" className={errors.idea_text ? "text-red-500" : ""}>
+            <Label htmlFor="description" className={errors.description ? "text-red-500" : ""}>
               Description
             </Label>
             
@@ -134,7 +135,7 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
                   content={ideaText}
                   onChange={(newContent) => {
                     setIdeaText(newContent)
-                    if (errors.idea_text) setErrors({ ...errors, idea_text: undefined })
+                    if (errors.description) setErrors({ ...errors, description: undefined })
                   }}
                 />
               </TabsContent>
@@ -150,7 +151,7 @@ export function IdeaCreateModal({ isOpen, onClose, onSave, availableTags }: Idea
               </TabsContent>
             </Tabs>
             
-            {errors.idea_text && <p className="text-sm text-red-500">{errors.idea_text}</p>}
+            {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
           </div>
 
           <div className="grid gap-2">

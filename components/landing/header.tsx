@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { MobileMenu } from "./mobile-menu"
 import { Container } from "./container"
-import { CustomButton } from "../ui/custom-button"
+import { Button } from "../ui/button"
 import { Menu, X, Rocket, Sparkles } from "lucide-react"
 
 export function Header() {
@@ -84,21 +84,21 @@ export function Header() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Link href="/login">
-              <CustomButton 
+              <Button 
                 variant="outline" 
                 size="sm"
                 className={`transition-all duration-300 font-bold ${
                   isScrolled 
                     ? "border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white" 
-                    : "border-2 border-white text-white hover:bg-white hover:text-gray-900 drop-shadow-lg"
+                    : "border-2 border-white/50 bg-white/20 text-white hover:bg-white/30 hover:border-white drop-shadow-lg"
                 }`}
               >
                 Login
-              </CustomButton>
+              </Button>
             </Link>
             <Link href="/signup">
-              <CustomButton 
-                variant="primary" 
+              <Button 
+                variant="default" 
                 size="sm" 
                 className={`font-semibold border transition-all duration-300 transform hover:scale-105 ${
                   isScrolled 
@@ -107,7 +107,7 @@ export function Header() {
                 }`}
               >
                 Sign Up Free
-              </CustomButton>
+              </Button>
             </Link>
           </div>
 

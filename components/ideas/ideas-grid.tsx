@@ -76,9 +76,9 @@ export function IdeasGrid({ ideas, onEdit, onSchedule, onDelete }: IdeasGridProp
               /> */}
               <Badge 
                 variant="outline" 
-                className={`px-2 py-0.5 text-xs font-medium rounded-full mr-2 ${getStatusColor(idea.status)} border-transparent`}
+                className={`px-2 py-0.5 text-xs font-medium rounded-full mr-2 ${getStatusColor(idea.status || 'draft')} border-transparent`}
               >
-                {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
+                {(idea.status || 'draft').charAt(0).toUpperCase() + (idea.status || 'draft').slice(1)}
               </Badge>
 
               <DropdownMenu>
@@ -103,7 +103,7 @@ export function IdeasGrid({ ideas, onEdit, onSchedule, onDelete }: IdeasGridProp
           </div>
 
           <p className="text-sm text-gray-600 mb-3 flex-grow overflow-hidden">
-            {getExcerpt(idea.idea_text)}
+            {getExcerpt(idea.description || "")}
           </p>
 
           {idea.tags && idea.tags.length > 0 && (
@@ -117,7 +117,7 @@ export function IdeasGrid({ ideas, onEdit, onSchedule, onDelete }: IdeasGridProp
           )}
 
           <div className="text-xs text-gray-500 mt-auto pt-2 border-t">
-            {new Date(idea.created_at).toLocaleDateString()}
+            {idea.created_at ? new Date(idea.created_at).toLocaleDateString() : 'Unknown date'}
           </div>
         </div>
       ))}

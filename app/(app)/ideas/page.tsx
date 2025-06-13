@@ -24,4 +24,4 @@ export default async function IdeasPage() {
     // In case of error, redirect to login
     redirect("/login?error=server_error")
   }
-}
+} 

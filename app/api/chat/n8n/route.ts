@@ -29,8 +29,8 @@ interface N8nResponse {
   [key: string]: any; // To accommodate other potential fields or direct text
 }
 
-function createSupabaseClient() {
-  const cookieStore = cookies();
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -57,7 +57,7 @@ function createSupabaseClient() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = createSupabaseClient();
+    const supabase = await createSupabaseClient();
     
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 

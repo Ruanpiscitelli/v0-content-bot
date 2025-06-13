@@ -1,0 +1,16 @@
+# supabase/config.toml
+project_id = "pkxrojklxhvqbshapeirl"
+
+[api]
+# project_id = "pkxrojklxhvqbshapeirl" # Duplicated, but often seen in generated configs
+# base_path = "/rest/v1" # Default, can be omitted
+
+[db]
+# local_port = 54322 # Default for local development, can be omitted
+# remote_port = 5432 # Default, can be omitted
+
+[studio]
+# local_port = 54323 # Default, can be omitted
+
+# [functions.<function_slug>] # Example, we don't have a specific slug to add yet beyond the default
+# # verify_jwt = true # Default is true 

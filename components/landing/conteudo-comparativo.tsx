@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Sparkles, Zap, ChevronUp, Clock, MessageSquare, TrendingUp, ArrowRight } from "lucide-react"
-import { CustomButton } from "../ui/custom-button"
+import { Sparkles, Zap, ChevronUp, Clock, MessageSquare, TrendingUp, ArrowRight, Check, X } from "lucide-react"
+import { Button } from "../ui/button"
+import { motion } from "framer-motion"
 
 export function ConteudoComparativo() {
   const [isVisible, setIsVisible] = useState(false)
@@ -373,10 +374,10 @@ export function ConteudoComparativo() {
             isVisible ? "opacity-100 transform-none" : "opacity-0 translate-y-10"
           }`}
         >
-          <CustomButton size="lg" className="bg-white text-primary hover:bg-white/90 font-semibold" withIcon>
+          <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-semibold">
             Transforme seu Conteúdo Agora
             <ArrowRight className="ml-2 h-5 w-5" />
-          </CustomButton>
+          </Button>
 
           <p className="text-white/80 mt-4 text-sm">Resultados baseados em dados reais de nossas criadoras</p>
         </div>

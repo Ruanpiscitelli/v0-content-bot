@@ -13,10 +13,25 @@ const publicRoutes = [
   "/", // Landing page
 ]
 
+// Define protected routes that require authentication
+const protectedRoutes = [
+  "/chat",
+  "/profile",
+  "/gallery",
+  "/ideas",
+  "/calendar",
+  "/settings",
+  "/security",
+  "/create",
+  "/trends",
+  "/tools",
+  "/notifications",
+]
+
 // Define admin routes that require special authentication
 const adminRoutes = ["/admin"]
 
-  // Define routes that should redirect to chat page if user is already logged in
+// Define routes that should redirect to chat page if user is already logged in
 // Note: reset-password is removed from this list because we need to allow logged in users to reset their password
 const authRoutes = ["/login", "/signup", "/forgot-password"]
 
@@ -85,6 +100,9 @@ export async function middleware(req: NextRequest) {
     // Check if the path is a public route
     const isPublicRoute = publicRoutes.some((route) => path === route || path.startsWith(`${route}/`))
 
+    // Check if the path is a protected route
+    const isProtectedRoute = protectedRoutes.some((route) => path === route || path.startsWith(`${route}/`))
+
     // Check if the path is an auth route (login, signup, etc.)
     const isAuthRoute = authRoutes.some((route) => path === route || path.startsWith(`${route}/`))
 
@@ -111,7 +129,7 @@ export async function middleware(req: NextRequest) {
     }
 
     // If user is not logged in and trying to access a protected route
-    if (!user && !isPublicRoute) {
+    if (!user && isProtectedRoute) {
       // Create a URL to redirect to after login
       const redirectUrl = new URL("/login", req.url)
       redirectUrl.searchParams.set("redirectUrl", req.url)
@@ -121,8 +139,8 @@ export async function middleware(req: NextRequest) {
 
     // If user is logged in and trying to access an auth route
     if (user && isAuthRoute) {
-                      // Redirect to chat page
-        return NextResponse.redirect(new URL("/chat", req.url))
+      // Redirect to chat page
+      return NextResponse.redirect(new URL("/chat", req.url))
     }
 
     return res

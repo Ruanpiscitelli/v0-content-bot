@@ -5,13 +5,13 @@ export async function collectDeviceData() {
     deviceData: {
       userAgent: "unknown",
       language: "unknown",
-      languages: [],
+      languages: [] as string[],
       platform: "unknown",
       vendor: "unknown",
       cookieEnabled: false,
-      doNotTrack: null,
-      hardwareConcurrency: null,
-      maxTouchPoints: null,
+      doNotTrack: null as string | null,
+      hardwareConcurrency: null as number | null,
+      maxTouchPoints: null as number | null,
       screen: {
         width: 0,
         height: 0,
@@ -34,11 +34,11 @@ export async function collectDeviceData() {
       connection: {},
       battery: {},
       utm: {
-        source: null,
-        medium: null,
-        campaign: null,
-        term: null,
-        content: null,
+        source: null as string | null,
+        medium: null as string | null,
+        campaign: null as string | null,
+        term: null as string | null,
+        content: null as string | null,
       },
       referrer: "",
       url: "",
@@ -49,9 +49,9 @@ export async function collectDeviceData() {
       timezone: "unknown",
       timezoneOffset: 0,
       historyLength: 0,
-      plugins: [],
+      plugins: [] as { name: string; description: string; filename: string }[],
       hardware: {
-        logicalProcessors: null,
+        logicalProcessors: null as number | null,
       },
       memory: {
         deviceMemory: null,
@@ -63,7 +63,7 @@ export async function collectDeviceData() {
       visitorId: "0000000000000000",
       components: {
         fonts: {
-          value: [],
+          value: [] as string[],
           duration: 0,
           error: null as string | null,
         },
@@ -87,7 +87,7 @@ export async function collectDeviceData() {
           renderer: "",
           unmaskedVendor: "",
           unmaskedRenderer: "",
-          extensions: [],
+          extensions: [] as string[],
           error: null as string | null,
         },
       },
@@ -476,7 +476,7 @@ function getWebGLInfo() {
 
   try {
     const canvas = document.createElement("canvas")
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
+    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl") as WebGLRenderingContext | null
 
     if (!gl) {
       result.error = "WebGL not supported"

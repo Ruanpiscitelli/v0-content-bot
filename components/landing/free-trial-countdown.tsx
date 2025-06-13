@@ -1,7 +1,8 @@
 "use client"
 import { useState, useEffect } from "react"
-import { CustomButton } from "../ui/custom-button"
+import { Button } from "../ui/button"
 import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
 
 export function FreeTrialCountdown() {
   const [timeLeft, setTimeLeft] = useState({
@@ -96,9 +97,9 @@ export function FreeTrialCountdown() {
         </div>
 
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <CustomButton variant="secondary" size="lg" animationType="shine">
+          <Button variant="secondary" size="lg" animationType="shine">
             Aproveitar Oferta
-          </CustomButton>
+          </Button>
         </motion.div>
       </div>
     </div>

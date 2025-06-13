@@ -1,313 +1,281 @@
-import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
+"use client";
 
-// Sample notification data
-const notifications = [
-  {
-    id: "1",
-    title: "Nova mensagem",
-    message: "Você recebeu uma nova mensagem de @mariafernanda",
-    timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-    read: false,
-    type: "message",
-  },
-  {
-    id: "2",
-    title: "Novo seguidor",
-    message: "@carlos_silva começou a seguir você",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    read: false,
-    type: "follow",
-  },
-  {
-    id: "3",
-    title: "Menção em comentário",
-    message: "@juliana_costa mencionou você em um comentário",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    read: true,
-    type: "mention",
-  },
-  {
-    id: "4",
-    title: "Curtida em seu post",
-    message: "@roberto_almeida curtiu seu post recente",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    read: true,
-    type: "like",
-  },
-  {
-    id: "5",
-    title: "Atualização do sistema",
-    message: "Novos recursos foram adicionados à plataforma",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    read: true,
-    type: "system",
-  },
-  {
-    id: "6",
-    title: "Novo comentário",
-    message: "@ana_beatriz comentou em sua foto: 'Adorei esse look!'",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26), // 26 hours ago
-    read: true,
-    type: "mention",
-  },
-  {
-    id: "7",
-    title: "Curtida em seu comentário",
-    message: "@pedro_henrique curtiu seu comentário",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-    read: true,
-    type: "like",
-  },
-  {
-    id: "8",
-    title: "Novo seguidor",
-    message: "@marina_oliveira começou a seguir você",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72), // 3 days ago
-    read: true,
-    type: "follow",
-  },
-]
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Bell, Check, X, Info, AlertCircle, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
-// Helper function to get notification icon
-const getNotificationIcon = (type: string) => {
-  switch (type) {
-    case "message":
-      return (
-        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </div>
-      )
-    case "mention":
-      return (
-        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="4" />
-            <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
-          </svg>
-        </div>
-      )
-    case "like":
-      return (
-        <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-        </div>
-      )
-    case "follow":
-      return (
-        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="8.5" cy="7" r="4" />
-            <line x1="20" y1="8" x2="20" y2="14" />
-            <line x1="23" y1="11" x2="17" y2="11" />
-          </svg>
-        </div>
-      )
-    case "system":
-      return (
-        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="16" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
-        </div>
-      )
-    default:
-      return null
-  }
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  read: boolean;
+  created_at: string;
 }
 
 export default function NotificationsPage() {
-  // Group notifications by date
-  const today = notifications.filter((n) => new Date(n.timestamp).toDateString() === new Date().toDateString())
-  const yesterday = notifications.filter(
-    (n) => new Date(n.timestamp).toDateString() === new Date(Date.now() - 1000 * 60 * 60 * 24).toDateString(),
-  )
-  const older = notifications.filter(
-    (n) =>
-      new Date(n.timestamp).toDateString() !== new Date().toDateString() &&
-      new Date(n.timestamp).toDateString() !== new Date(Date.now() - 1000 * 60 * 60 * 24).toDateString(),
-  )
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { toast } = useToast();
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function initialize() {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+
+        // Simulated notifications - in a real app these would come from the database
+        if (user) {
+          const mockNotifications: Notification[] = [
+            {
+              id: '1',
+              title: 'Bem-vindo ao Virallyzer!',
+              message: 'Sua conta foi criada com sucesso. Explore nossas ferramenias de IA para criar conteúdo incrível.',
+              type: 'success',
+              read: false,
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: '2',
+              title: 'Nova ferramenta disponível',
+              message: 'A geração de áudio com XTTS-v2 está agora disponível! Teste a criação de vozes sintéticas multilíngues.',
+              type: 'info',
+              read: false,
+              created_at: new Date(Date.now() - 3600000).toISOString(),
+            },
+            {
+              id: '3',
+              title: 'Perfil atualizado',
+              message: 'Suas informações de perfil foram atualizadas com sucesso.',
+              type: 'success',
+              read: true,
+              created_at: new Date(Date.now() - 7200000).toISOString(),
+            },
+          ];
+          setNotifications(mockNotifications);
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Erro ao carregar notificações",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    initialize();
+  }, [supabase, toast]);
+
+  const markAsRead = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === notificationId 
+          ? { ...notification, read: true }
+          : notification
+      )
+    );
+    toast({
+      title: "Notificação marcada como lida",
+      description: "A notificação foi marcada como lida.",
+    });
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    );
+    toast({
+      title: "Todas as notificações marcadas como lidas",
+      description: "Todas as notificações foram marcadas como lidas.",
+    });
+  };
+
+  const deleteNotification = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.filter(notification => notification.id !== notificationId)
+    );
+    toast({
+      title: "Notificação removida",
+      description: "A notificação foi removida com sucesso.",
+    });
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="h-5 w-5 text-green-600" />;
+      case 'warning':
+        return <AlertCircle className="h-5 w-5 text-yellow-600" />;
+      case 'error':
+        return <X className="h-5 w-5 text-red-600" />;
+      default:
+        return <Info className="h-5 w-5 text-blue-600" />;
+    }
+  };
+
+  const getNotificationBadgeColor = (type: string) => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'error':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Acesso Negado</CardTitle>
+            <CardDescription>
+              Você precisa estar logado para acessar esta página
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/login">Fazer Login</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Notificações</h1>
-
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Filters */}
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 text-sm bg-[#01aef0] text-white rounded-full">Todas</button>
-            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-full">Não lidas</button>
-            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-full">Menções</button>
+    <div className="container mx-auto py-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Bell className="h-8 w-8 text-blue-600" />
+          <div>
+            <h1 className="text-3xl font-bold">Notificações</h1>
+            <p className="text-muted-foreground">
+              {unreadCount > 0 ? `${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}` : 'Todas as notificações estão lidas'}
+            </p>
           </div>
-          <button className="text-sm text-gray-600 hover:text-gray-900">Marcar todas como lidas</button>
         </div>
-
-        {/* Notifications List */}
-        <div className="divide-y">
-          {/* Today */}
-          {today.length > 0 && (
-            <div>
-              <h3 className="px-4 py-2 bg-gray-50 text-sm font-medium text-gray-500">Hoje</h3>
-              {today.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 flex items-start gap-4 ${!notification.read ? "bg-blue-50" : ""}`}
-                >
-                  {getNotificationIcon(notification.type)}
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium">{notification.title}</h4>
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(notification.timestamp, {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mt-1">{notification.message}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Yesterday */}
-          {yesterday.length > 0 && (
-            <div>
-              <h3 className="px-4 py-2 bg-gray-50 text-sm font-medium text-gray-500">Ontem</h3>
-              {yesterday.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 flex items-start gap-4 ${!notification.read ? "bg-blue-50" : ""}`}
-                >
-                  {getNotificationIcon(notification.type)}
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium">{notification.title}</h4>
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(notification.timestamp, {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mt-1">{notification.message}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Older */}
-          {older.length > 0 && (
-            <div>
-              <h3 className="px-4 py-2 bg-gray-50 text-sm font-medium text-gray-500">Anteriores</h3>
-              {older.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 flex items-start gap-4 ${!notification.read ? "bg-blue-50" : ""}`}
-                >
-                  {getNotificationIcon(notification.type)}
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium">{notification.title}</h4>
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(notification.timestamp, {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mt-1">{notification.message}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {notifications.length === 0 && (
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhuma notificação</h3>
-              <p className="text-gray-500">Você não tem notificações no momento.</p>
-            </div>
-          )}
-        </div>
+        
+        {unreadCount > 0 && (
+          <Button onClick={markAllAsRead} variant="outline">
+            <Check className="mr-2 h-4 w-4" />
+            Marcar todas como lidas
+          </Button>
+        )}
       </div>
+
+      {notifications.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">Nenhuma notificação</h3>
+            <p className="text-muted-foreground">
+              Você não tem notificações no momento.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {notifications.map((notification) => (
+            <Card 
+              key={notification.id} 
+              className={`${!notification.read ? 'border-blue-200 bg-blue-50/50' : ''} transition-all duration-200`}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    {getNotificationIcon(notification.type)}
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <CardTitle className="text-lg">{notification.title}</CardTitle>
+                        {!notification.read && (
+                          <Badge className="text-xs px-2 py-1 bg-blue-100 text-blue-800 border-blue-200">
+                            Nova
+                          </Badge>
+                        )}
+                        <Badge className={`text-xs px-2 py-1 ${getNotificationBadgeColor(notification.type)}`}>
+                          {notification.type}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-sm">
+                        {new Date(notification.created_at).toLocaleString('pt-BR')}
+                      </CardDescription>
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    {!notification.read && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => markAsRead(notification.id)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteNotification(notification.id)}
+                      className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm">{notification.message}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Configurações de Notificação</CardTitle>
+          <CardDescription>
+            Gerencie como você recebe notificações
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            As configurações de notificação estarão disponíveis em breve. Por enquanto, todas as notificações são exibidas aqui.
+          </p>
+          <Button variant="outline" asChild>
+            <Link href="/settings">
+              Ir para Configurações
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
-  )
-}
+  );
+} 

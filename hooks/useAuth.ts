@@ -43,14 +43,6 @@ export function useAuth() {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          // If rememberMe is true, use a longer session duration
-          ...(rememberMe && {
-            data: {
-              remember_me: true
-            }
-          })
-        }
       })
 
       if (error) {

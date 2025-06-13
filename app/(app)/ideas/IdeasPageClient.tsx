@@ -44,31 +44,19 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [currentIdea, setCurrentIdea] = useState<Idea | null>(null)
 
-  console.log("Ideas received by IdeasPageClient from useIdeas hook:", ideas);
-  console.log("Is loading:", loading);
-  console.log("Error state:", error);
-
   // Filter ideas based on search and selected tags
   const filteredIdeas = ideas.filter((idea) => {
-    console.log("Filtering idea:", JSON.stringify(idea)); // Log a ideia inteira
-    console.log("SearchTerm:", searchTerm, "SelectedTags:", selectedTags);
-
     const matchesSearch =
       searchTerm === "" ||
       (idea.title && typeof idea.title === 'string' && idea.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (idea.idea_text && typeof idea.idea_text === 'string' && idea.idea_text.toLowerCase().includes(searchTerm.toLowerCase()));
-    console.log("matchesSearch:", matchesSearch);
+      (idea.description && typeof idea.description === 'string' && idea.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesTags = 
       selectedTags.length === 0 || 
       (Array.isArray(idea.tags) && selectedTags.some((tag) => idea.tags?.includes(tag)));
-    console.log("matchesTags:", matchesTags);
 
-    console.log("Returning for this idea:", matchesSearch && matchesTags);
     return matchesSearch && matchesTags
   })
-
-  console.log("Filtered ideas before passing to list/grid:", filteredIdeas);
 
   // Handlers for CRUD operations
   const handleCreateIdea = async (newIdea: Omit<NewIdea, "status">) => {
@@ -251,7 +239,6 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
       <IdeaCreateModal
         isOpen={isCreateModalOpen}
         onClose={() => {
-          console.log("Closing Create Modal");
           setIsCreateModalOpen(false)
         }}
         onSave={handleCreateIdea}
@@ -263,10 +250,8 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           <IdeaEditModal
             isOpen={isEditModalOpen}
             onClose={() => {
-              console.log("Closing Edit Modal, currentIdea before reset:", currentIdea);
               setIsEditModalOpen(false)
               setCurrentIdea(null)
-              console.log("Edit Modal closed, currentIdea after reset:", null);
             }}
             onSave={handleEditIdea}
             idea={currentIdea}
@@ -276,10 +261,8 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           <IdeaScheduleModal
             isOpen={isScheduleModalOpen}
             onClose={() => {
-              console.log("Closing Schedule Modal, currentIdea before reset:", currentIdea);
               setIsScheduleModalOpen(false)
               setCurrentIdea(null)
-              console.log("Schedule Modal closed, currentIdea after reset:", null);
             }}
             onSchedule={(date) => handleScheduleIdea(currentIdea.id, date)}
             idea={currentIdea}
@@ -288,10 +271,8 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
           <IdeaDeleteDialog
             isOpen={isDeleteDialogOpen}
             onClose={() => {
-              console.log("Closing Delete Dialog, currentIdea before reset:", currentIdea);
               setIsDeleteDialogOpen(false)
               setCurrentIdea(null)
-              console.log("Delete Dialog closed, currentIdea after reset:", null);
             }}
             onDelete={() => handleDeleteIdea(currentIdea.id)}
             idea={currentIdea}
@@ -300,4 +281,4 @@ export default function IdeasPageClient({ userId }: IdeasPageClientProps) {
       )}
     </div>
   )
-}
+} 

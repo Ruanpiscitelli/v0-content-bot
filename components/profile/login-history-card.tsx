@@ -56,7 +56,10 @@ export function LoginHistoryCard() {
           throw error
         }
 
-        setLoginEvents(data || [])
+        setLoginEvents((data || []).map(event => ({
+          ...event,
+          created_at: event.created_at || new Date().toISOString(),
+        })))
       } catch (err) {
         console.error("Error fetching login history:", err)
         setError("Não foi possível carregar o histórico de login")

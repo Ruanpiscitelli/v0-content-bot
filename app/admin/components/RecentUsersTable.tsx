@@ -38,7 +38,12 @@ export function RecentUsersTable() {
 
       if (error) throw error
 
-      setUsers(data || [])
+      setUsers((data || []).map(user => ({
+        ...user,
+        has_subscription: null,
+        created_at: user.created_at ?? '',
+        id: user.id ?? '',
+      })))
     } catch (error) {
       console.error('Erro ao buscar usuários recentes:', error)
     } finally {

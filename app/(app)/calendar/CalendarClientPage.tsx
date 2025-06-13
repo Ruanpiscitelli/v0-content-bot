@@ -5,10 +5,10 @@ import { useState, useEffect } from "react"
 // import { Button } from "@/components/ui/button" 
 // import ContentCalendar from "@/app/components/ContentCalendar" // Old calendar
 import { FullScreenCalendar, type DayWithEvents } from "@/components/ui/fullscreen-calendar" // New calendar
-import { toast } from "@/components/ui/use-toast" // Kept for potential future use, but not in current FullScreenCalendar example
 import { useIdeas, type Idea as IdeaFromHook } from "@/hooks/useIdeas"
 import { parseISO, format, startOfDay } from "date-fns"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 // Define the Event type expected by FullScreenCalendar (based on dummyEvents)
 // Renomeando para FullScreenEventType para evitar conflito com o Event do DOM global se necessário em outros contextos.
@@ -47,62 +47,52 @@ export default function CalendarClientPage({ userId }: CalendarClientPageProps) 
     setIsModalOpen(true);
     // Aqui você abriria um modal para mostrar os detalhes do evento
     // Por exemplo: setShowEventModal(true);
-    toast({
-      title: "Event Clicked (Placeholder)",
-      description: `Name: ${event.name} at ${event.time}. Implement modal to see details.`,
-    });
+    toast.info(`Event: ${event.name} at ${event.time}`);
   };
 
   useEffect(() => {
-    if (ideas && ideas.length > 0) {
-      const eventsByDay: { [key: string]: DayWithEvents } = {}
+    // TODO: Implement calendar functionality when scheduled_date is added to ideas table
+    // if (ideas && ideas.length > 0) {
+    //   const eventsByDay: { [key: string]: DayWithEvents } = {}
 
-      ideas
-        .filter(idea => idea.scheduled_date)
-        .forEach((idea: IdeaFromHook) => {
-          try {
-            const scheduledDate = parseISO(idea.scheduled_date!)
-            const dayKey = format(scheduledDate, "yyyy-MM-dd")
+    //   ideas
+    //     .filter(idea => idea.scheduled_date)
+    //     .forEach((idea: IdeaFromHook) => {
+    //       try {
+    //         const scheduledDate = parseISO(idea.scheduled_date!)
+    //         const dayKey = format(scheduledDate, "yyyy-MM-dd")
 
-            if (!eventsByDay[dayKey]) {
-              eventsByDay[dayKey] = {
-                day: startOfDay(scheduledDate),
-                events: [],
-              }
-            }
+    //         if (!eventsByDay[dayKey]) {
+    //           eventsByDay[dayKey] = {
+    //             day: startOfDay(scheduledDate),
+    //             events: [],
+    //           }
+    //         }
 
-            eventsByDay[dayKey].events.push({
-              id: idea.id,
-              name: idea.title,
-              time: format(scheduledDate, "p"), // e.g., "10:00 AM"
-              // datetime should be the specific date string for that day, often used for comparisons or headers
-              // The dummy data used "YYYY-MM-DDTHH:mm", let's use the start of the day in UTC for consistency.
-              datetime: startOfDay(scheduledDate).toISOString(), // e.g., "2025-01-02T00:00:00.000Z"
-              description: idea.idea_text || "",
-              // You can add other properties from 'idea' if FullScreenCalendar supports rendering them
-              // e.g., status: idea.status
-            })
-          } catch (e) {
-            console.error("Error processing idea for calendar:", idea, e);
-            // Optionally, show a toast message for the problematic idea
-            toast({
-              title: "Error Processing Idea",
-              description: `Could not process idea "${idea.title || 'Unknown'}" for the calendar.`,
-              variant: "destructive",
-            })
-          }
-        })
+    //         eventsByDay[dayKey].events.push({
+    //           id: idea.id,
+    //           name: idea.title,
+    //           time: format(scheduledDate, "p"), // e.g., "10:00 AM"
+    //           datetime: startOfDay(scheduledDate).toISOString(), // e.g., "2025-01-02T00:00:00.000Z"
+    //           description: idea.idea_text || "",
+    //         })
+    //       } catch (e) {
+    //         console.error("Error processing idea for calendar:", idea, e);
+    //         toast.error(`Could not process idea "${idea.title || 'Unknown'}" for the calendar.`);
+    //       }
+    //     })
 
-      const transformedData = Object.values(eventsByDay)
-      // Sort by day to ensure chronological order
-      transformedData.sort((a, b) => a.day.getTime() - b.day.getTime());
-      
-      setCalendarData(transformedData)
-      console.log("[CalendarClientPage] Transformed ideas to FullScreenCalendar data:", transformedData)
-    } else {
-      setCalendarData([])
-      console.log("[CalendarClientPage] No ideas to transform or ideas array is empty.")
-    }
+    //   const transformedData = Object.values(eventsByDay)
+    //   transformedData.sort((a, b) => a.day.getTime() - b.day.getTime());
+    //   setCalendarData(transformedData)
+    //   console.log("[CalendarClientPage] Transformed ideas to FullScreenCalendar data:", transformedData)
+    // } else {
+    //   setCalendarData([])
+    //   console.log("[CalendarClientPage] No ideas to transform or ideas array is empty.")
+    // }
+    
+    // For now, set empty calendar data
+    setCalendarData([])
   }, [ideas])
 
   // Handler for updating events - this will depend on FullScreenCalendar's API

@@ -3,6 +3,7 @@
 import type React from "react"
 import Script from "next/script"
 import AppSidebar from "@/components/app-sidebar"
+import { GlobalJobIndicator } from "@/components/ui/global-job-indicator"
 import { useState, useEffect } from "react"
 import { Inter } from "next/font/google"
 import { Toaster } from "sonner"
@@ -56,6 +57,9 @@ export default function AppLayout({
             {children}
           </div>
         </main>
+        
+        {/* Global Job Indicator - appears on all app pages */}
+        <GlobalJobIndicator />
       </div>
       <Toaster richColors />
     </div>

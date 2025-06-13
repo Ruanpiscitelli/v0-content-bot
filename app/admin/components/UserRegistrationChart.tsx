@@ -71,6 +71,7 @@ export function UserRegistrationChart() {
       const groupedData = new Map<string, number>()
       
       profiles?.forEach(profile => {
+        if (!profile.created_at) return;
         const date = new Date(profile.created_at)
         let key: string
 
@@ -205,7 +206,7 @@ export function UserRegistrationChart() {
             </p>
           </div>
           <div className="flex space-x-2">
-            <Select value={period} onValueChange={setPeriod}>
+            <Select value={period} onValueChange={value => setPeriod(value as typeof period)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>

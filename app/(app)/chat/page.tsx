@@ -6,8 +6,8 @@ import type { Database } from "@/types/supabase"
 
 export const dynamic = "force-dynamic"
 
-function createSupabaseClient() {
-  const cookieStore = cookies();
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -34,7 +34,7 @@ function createSupabaseClient() {
 
 export default async function ChatPage() {
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
 
     // Get the current user securely
     const {

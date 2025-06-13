@@ -93,9 +93,8 @@ export function FeatureComparison() {
           <CardFooter>
             <Link href={plan.ctaLink} className="w-full">
               <Button
-                className="w-full"
+                className={`w-full ${plan.popular ? "bg-blue-500 hover:bg-blue-600" : ""}`}
                 variant={plan.popular ? "default" : "outline"}
-                {...(plan.popular ? { className: "bg-blue-500 hover:bg-blue-600" } : {})}
               >
                 {plan.ctaText}
               </Button>
